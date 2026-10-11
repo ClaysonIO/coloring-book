@@ -24,13 +24,17 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "mupdf": "^1.28.1",
+    "sharp": "^0.35.5",
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
+    "content": "node scripts/build-content.mjs",
+    "postinstall": "npm run content",
+    "start": "npm run content && expo start",
+    "android": "npm run content && expo start --android",
+    "ios": "npm run content && expo start --ios",
+    "web": "npm run content && expo start --web",
     "typecheck": "tsc --noEmit"
   },
   "private": true

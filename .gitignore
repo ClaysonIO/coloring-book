@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# generated from ColoringPages/ by scripts/build-content.mjs
+/generated/
+src/content/books.generated.ts

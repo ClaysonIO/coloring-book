@@ -22,7 +22,8 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
 
 ```bash
 npm install
-npx expo start        # then press a for Android or i for iOS, or scan the QR code with Expo Go
+npm start             # converts ColoringPages, then starts Expo; press a for Android or i for iOS,
+                      # or scan the QR code with Expo Go
 ```
 
 `npx tsc --noEmit` type-checks the project.
@@ -43,13 +44,52 @@ Installing on a real iPhone/iPad, or publishing to the stores, requires signing.
 
 ## Adding artwork
 
-1. Put PNGs in `assets/books/<book-id>/`. They should be black line art on a white (or transparent)
-   background. Closed outlines make the fill bucket work best.
-2. List them in `src/content/books.ts`. A book can have an optional `cover` image. Without one, it
-   uses its first page.
+All books live in `ColoringPages/`. Each sub-folder is one book:
 
-Book and page `id`s are storage keys, so don't change them once people have started coloring.
-The images in `assets/books/` now are placeholders.
+```
+ColoringPages/
+  animals/
+    _book.json
+    cover.png
+    cat.png
+    fish.jpg
+    ...
+```
+
+`_book.json` describes the book. Paths are relative to the book's folder:
+
+```json
+{
+  "name": "Animals",
+  "cover": "cover.png",
+  "pages": [
+    { "name": "Cat", "path": "cat.png" },
+    { "name": "Fish", "path": "fish.jpg" },
+    { "name": "Lion", "path": "safari.pdf", "page": 3 }
+  ]
+}
+```
+
+- **`name`**: the book title shown in the app.
+- **`cover`** (optional): the cover image. Without it, the book uses its first page.
+- **`pages`**: listed in the order they appear. Each needs a `name` (shown under the page) and a `path`.
+  For PDFs, `page` picks which page to use (default 1), so one PDF can supply many coloring pages.
+- **Supported files:** PDF, PNG, JPG/JPEG, GIF, WebP, SVG, TIFF, BMP, AVIF.
+  Pages work best as black line art on a white or transparent background, with closed outlines so
+  the fill bucket doesn't leak.
+- **Order:** books are sorted by folder name, so prefix folders (`01-animals`, `02-space`) to control it.
+
+Then run `npm run content`. This also runs automatically on `npm install` and `npm start`. It
+converts every image to a PNG at most 2048 px on a side, with transparency flattened to white, in
+`generated/`, and it writes `src/content/books.generated.ts`. Both are git-ignored. If something is
+wrong, such as a missing file, bad JSON or a PDF page that doesn't exist, it stops and names the file.
+
+**Ids:** saved coloring is keyed by the book's folder name and each page's file name (plus `-p<N>`
+for PDF pages after the first). Renaming a folder or file after people have started coloring hides
+their saved coloring for it. To rename a file safely, add `"id": "<old file name>"` to that page.
+
+The books in `ColoringPages/` now are placeholders. They include a JPG, a WebP, a PDF and an SVG
+so every converter path is exercised.
 
 ## Storage
 
@@ -69,6 +109,8 @@ matching file or folder.
 
 | Path | What |
 |---|---|
+| `ColoringPages/` | Book and page artwork plus `_book.json` (source of truth) |
+| `scripts/build-content.mjs` | Converts `ColoringPages/` into bundled PNGs and the generated book list |
 | `src/app/` | Screens (Expo Router): profiles, books, book pages, coloring, settings |
 | `src/drawing/ColoringCanvas.tsx` | Fit-to-screen canvas and touch handling |
 | `src/drawing/PageArtwork.tsx` | Draw order: paper, color layer, line art |

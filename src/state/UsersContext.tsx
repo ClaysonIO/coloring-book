@@ -9,6 +9,7 @@ type UsersContextValue = {
   selectUser: (id: string | null) => void;
   addUser: (name: string, color: string) => User;
   deleteUser: (id: string) => void;
+  setPin: (id: string, pin: string | null) => void;
   /** Bumped whenever saved coloring changes, so screens showing thumbnails re-read them. */
   revision: number;
   bumpRevision: () => void;
@@ -46,6 +47,18 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     setCurrentId((cur) => (cur === id ? null : cur));
   }, []);
 
+  const setPin = useCallback((id: string, pin: string | null) => {
+    setUsers((prev) => {
+      const next = prev.map((u) => {
+        if (u.id !== id) return u;
+        const { pin: _old, ...rest } = u;
+        return pin ? { ...rest, pin } : rest;
+      });
+      storage.saveUsers(next);
+      return next;
+    });
+  }, []);
+
   const bumpRevision = useCallback(() => setRevision((r) => r + 1), []);
 
   const value = useMemo<UsersContextValue>(
@@ -55,10 +68,11 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       selectUser: setCurrentId,
       addUser,
       deleteUser,
+      setPin,
       revision,
       bumpRevision,
     }),
-    [users, currentId, addUser, deleteUser, revision, bumpRevision],
+    [users, currentId, addUser, deleteUser, setPin, revision, bumpRevision],
   );
 
   return <UsersContext.Provider value={value}>{children}</UsersContext.Provider>;

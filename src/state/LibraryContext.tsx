@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
-import { bundledBooks, type Book, type Page } from '../content/books';
+import { BLANK_PAGE, bundledBooks, SKETCHBOOK_COVER, SKETCHBOOK_ID, type Book, type Page } from '../content/books';
 import * as lib from './library';
 import type { CustomPage, LibraryData } from './library';
 import * as storage from './storage';
@@ -18,6 +18,8 @@ type LibraryContextValue = {
   /** Imports images one at a time; returns how many could not be read. */
   addPages: (bookId: string, images: PickedImage[], onProgress?: (done: number) => void) => Promise<number>;
   renamePage: (bookId: string, pageId: string, title: string) => void;
+  /** Adds a blank page to the current user's sketchbook. */
+  addSketchPage: () => void;
   removePage: (bookId: string, pageId: string) => void;
   hasRemovedBuiltIns: boolean;
   restoreBuiltIns: () => void;
@@ -34,8 +36,25 @@ function titleFrom(name: string | null | undefined, fallback: string) {
 }
 
 export function LibraryProvider({ children }: { children: ReactNode }) {
-  const { users, bumpRevision } = useUsers();
+  const { users, currentUser, revision, bumpRevision } = useUsers();
   const [data, setData] = useState<LibraryData>(() => lib.loadLibrary());
+  const [sketchVersion, setSketchVersion] = useState(0);
+  const userId = currentUser?.id;
+
+  // Re-read after account resets too (they delete the file, which restores the single default page).
+  const sketchPages = useMemo(
+    () => (userId ? storage.loadSketchbook(userId) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userId, revision, sketchVersion],
+  );
+  const saveSketch = useCallback(
+    (pages: storage.SketchPage[]) => {
+      if (!userId) return;
+      storage.saveSketchbook(userId, pages);
+      setSketchVersion((v) => v + 1);
+    },
+    [userId],
+  );
 
   const update = useCallback((fn: (d: LibraryData) => LibraryData) => {
     setData((prev) => {
@@ -63,8 +82,15 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       pages: b.pages.map(toPage),
       custom: true,
     }));
-    return [...builtIn, ...custom];
-  }, [data]);
+    const sketchbook: Book = {
+      id: SKETCHBOOK_ID,
+      title: 'My Sketchbook',
+      cover: SKETCHBOOK_COVER,
+      pages: sketchPages.map((p) => ({ id: p.id, title: p.title, image: BLANK_PAGE, custom: true })),
+      sketchbook: true,
+    };
+    return [...(userId ? [sketchbook] : []), ...builtIn, ...custom];
+  }, [data, sketchPages, userId]);
 
   const getBook = useCallback((bookId: string) => books.find((b) => b.id === bookId), [books]);
   const getPage = useCallback(
@@ -155,13 +181,30 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   );
 
   const renamePage = useCallback(
-    (bookId: string, pageId: string, title: string) =>
-      mapCustomPages(bookId, (pages) => pages.map((p) => (p.id === pageId ? { ...p, title: title.trim() } : p))),
-    [mapCustomPages],
+    (bookId: string, pageId: string, title: string) => {
+      if (bookId === SKETCHBOOK_ID) {
+        saveSketch(sketchPages.map((p) => (p.id === pageId ? { ...p, title: title.trim() } : p)));
+        return;
+      }
+      mapCustomPages(bookId, (pages) => pages.map((p) => (p.id === pageId ? { ...p, title: title.trim() } : p)));
+    },
+    [mapCustomPages, saveSketch, sketchPages],
   );
+
+  const addSketchPage = useCallback(() => {
+    const next = Math.max(0, ...sketchPages.map((p) => Number(/^Page (\d+)$/.exec(p.title)?.[1] ?? 0))) + 1;
+    saveSketch([...sketchPages, { id: lib.newId(), title: `Page ${next}` }]);
+  }, [sketchPages, saveSketch]);
 
   const removePage = useCallback(
     (bookId: string, pageId: string) => {
+      if (bookId === SKETCHBOOK_ID) {
+        saveSketch(sketchPages.filter((p) => p.id !== pageId));
+        // Sketchbooks are personal, so only the current user's drawing goes.
+        if (userId) storage.resetPage(userId, bookId, pageId);
+        bumpRevision();
+        return;
+      }
       if (getPage(bookId, pageId)?.custom) {
         mapCustomPages(bookId, (pages) =>
           pages.filter((p) => {
@@ -175,7 +218,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       }
       forgetColoring(bookId, pageId);
     },
-    [getPage, mapCustomPages, update, forgetColoring],
+    [getPage, mapCustomPages, update, forgetColoring, saveSketch, sketchPages, userId, bumpRevision],
   );
 
   const restoreBuiltIns = useCallback(() => update((d) => ({ ...d, hiddenBooks: [], hiddenPages: [] })), [update]);
@@ -190,11 +233,12 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       removeBook,
       addPages,
       renamePage,
+      addSketchPage,
       removePage,
       hasRemovedBuiltIns: data.hiddenBooks.length > 0 || data.hiddenPages.length > 0,
       restoreBuiltIns,
     }),
-    [books, getBook, getPage, createBook, renameBook, removeBook, addPages, renamePage, removePage, data, restoreBuiltIns],
+    [books, getBook, getPage, createBook, renameBook, removeBook, addPages, renamePage, addSketchPage, removePage, data, restoreBuiltIns],
   );
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;

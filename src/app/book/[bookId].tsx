@@ -8,6 +8,7 @@ import { Grid } from '../../components/Grid';
 import { Header, IconButton } from '../../components/Header';
 import { NamePrompt } from '../../components/NamePrompt';
 import { pickImages } from '../../components/pickImages';
+import { usePinGate } from '../../components/PinPrompt';
 import { AddTile, Tile } from '../../components/Tile';
 import { useLibrary } from '../../state/LibraryContext';
 import { useUsers } from '../../state/UsersContext';
@@ -17,18 +18,21 @@ import { colors } from '../../theme';
 export default function BookScreen() {
   const { bookId, edit } = useLocalSearchParams<{ bookId: string; edit?: string }>();
   const { currentUser, bumpRevision } = useUsers();
-  const { getBook, addPages, removePage, renamePage } = useLibrary();
+  const { getBook, addPages, addSketchPage, removePage, renamePage } = useLibrary();
   const [editing, setEditing] = useState(edit === '1');
   const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const { gate, pinPrompt } = usePinGate();
   const book = getBook(bookId);
   if (!currentUser || !book) return <Redirect href="/books" />;
 
   const resetBook = () =>
-    confirm(`Erase all of ${currentUser.name}'s coloring in ${book.title}?`, () => {
-      storage.resetBook(currentUser.id, book.id);
-      bumpRevision();
-    });
+    gate(currentUser, `Enter ${currentUser.name}'s PIN to erase ${book.title}`, () =>
+      confirm(`Erase all of ${currentUser.name}'s coloring in ${book.title}?`, () => {
+        storage.resetBook(currentUser.id, book.id);
+        bumpRevision();
+      }),
+    );
 
   const pageOptions = (pageId: string, title: string) => {
     if (!storage.loadLayer(currentUser.id, book.id, pageId)) return;
@@ -56,10 +60,14 @@ export default function BookScreen() {
   };
 
   const remove = (pageId: string, title: string) =>
-    Alert.alert(`Remove ${title}?`, "Everyone's coloring on this page will be deleted.", [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removePage(book.id, pageId) },
-    ]);
+    Alert.alert(
+      `Remove ${title}?`,
+      book.sketchbook ? 'Your drawing on this page will be deleted.' : "Everyone's coloring on this page will be deleted.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removePage(book.id, pageId) },
+      ],
+    );
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -103,7 +111,11 @@ export default function BookScreen() {
             />
           );
         })}
-        {editing && <AddTile label="Add pages" aspectRatio={1} onPress={add} />}
+        {book.sketchbook ? (
+          <AddTile label="New page" aspectRatio={1} onPress={addSketchPage} />
+        ) : (
+          editing && <AddTile label="Add pages" aspectRatio={1} onPress={add} />
+        )}
       </Grid>
 
       <NamePrompt
@@ -118,6 +130,7 @@ export default function BookScreen() {
         }}
       />
       <BusyOverlay message={busy} />
+      {pinPrompt}
     </View>
   );
 }

@@ -6,6 +6,11 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
 ## Features
 
 - **Local user profiles.** "Who's coloring?" picker on launch. Each user has their own coloring.
+- **Optional PIN per account** (Settings). With a PIN set, deleting the account, resetting all of its
+  coloring, resetting a whole book, or removing a book asks for the PIN first. Clearing a single page
+  never does. It's a kid lock: the PIN is stored on the device as plain text.
+- **My Sketchbook.** Every user has their own sketchbook of blank pages for free drawing. It starts with
+  one page. Tap **New page** to add more, and use edit mode to remove or rename pages. It can't be removed.
 - **Books → pages → coloring**, in a dark UI.
 - **No zoom.** The page always fits the screen, so every touch colors.
 - **Landscape layout.** In landscape the back button, the crayons (in a column pointing at the page)
@@ -87,6 +92,7 @@ ColoringPages/
 - **Supported files:** PDF, PNG, JPG/JPEG, GIF, WebP, SVG, TIFF, BMP, AVIF.
   Pages work best as black line art on a white or transparent background, with closed outlines so
   the fill bucket doesn't leak.
+- **Reserved:** a folder can't be named `sketchbook`, which is reserved for My Sketchbook.
 - **Order:** books are sorted by folder name, so prefix folders (`01-animals`, `02-space`) to control it.
 
 Then run `npm run content`. This also runs automatically on `npm install` and `npm start`. It
@@ -109,6 +115,7 @@ Everything is stored on the device under `<documents>/coloring/`:
 users.json
 users/<userId>/<bookId>/<pageId>.json   ordered list of strokes and fills (the color layer)
 users/<userId>/<bookId>/<pageId>.png    thumbnail shown in the page grid
+users/<userId>/sketchbook.json          the user's sketchbook page list
 library/library.json                    books and pages added in the app, and hidden built-ins
 library/images/<id>.png                 images added in the app
 ```

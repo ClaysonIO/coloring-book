@@ -1,20 +1,29 @@
 import { Redirect, router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../components/confirm';
 import { Header } from '../components/Header';
+import { PinPrompt, usePinGate } from '../components/PinPrompt';
 import { useLibrary } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
 import { colors } from '../theme';
 
+/** Two-step "choose, then repeat" flow for setting a PIN. */
+type PinSetup = { step: 'choose' } | { step: 'repeat'; first: string } | null;
+
 export default function SettingsScreen() {
-  const { currentUser, deleteUser, selectUser, bumpRevision } = useUsers();
+  const { currentUser, deleteUser, selectUser, setPin, bumpRevision } = useUsers();
   const { books, hasRemovedBuiltIns, restoreBuiltIns } = useLibrary();
   const insets = useSafeAreaInsets();
+  const { gate, pinPrompt } = usePinGate();
+  const [setup, setSetup] = useState<PinSetup>(null);
   if (!currentUser) return <Redirect href="/" />;
   const { id, name } = currentUser;
+
+  const guarded = (what: string, action: () => void) => gate(currentUser, `Enter ${name}'s PIN to ${what}`, action);
 
   return (
     <View style={styles.screen}>
@@ -27,10 +36,12 @@ export default function SettingsScreen() {
             label={book.title}
             action="Reset"
             onPress={() =>
-              confirm(`Erase all coloring in ${book.title}?`, () => {
-                storage.resetBook(id, book.id);
-                bumpRevision();
-              })
+              guarded(`reset ${book.title}`, () =>
+                confirm(`Erase all of ${name}'s coloring in ${book.title}?`, () => {
+                  storage.resetBook(id, book.id);
+                  bumpRevision();
+                }),
+              )
             }
           />
         ))}
@@ -40,6 +51,28 @@ export default function SettingsScreen() {
             <Text style={styles.section}>Library</Text>
             <Row label="Bring back removed built-in books and pages" onPress={restoreBuiltIns} />
           </>
+        )}
+
+        <Text style={styles.section}>PIN</Text>
+        <Text style={styles.note}>
+          A PIN stops this account from being deleted or having whole books cleared without it. Single pages can
+          always be cleared.
+        </Text>
+        {currentUser.pin ? (
+          <>
+            <Row label="Change PIN" onPress={() => guarded('change the PIN', () => setSetup({ step: 'choose' }))} />
+            <Row
+              label="Remove PIN"
+              onPress={() =>
+                guarded('remove the PIN', () => {
+                  setPin(id, null);
+                  Alert.alert('PIN removed');
+                })
+              }
+            />
+          </>
+        ) : (
+          <Row label="Set a PIN" onPress={() => setSetup({ step: 'choose' })} />
         )}
 
         <Text style={styles.section}>Account</Text>
@@ -54,23 +87,47 @@ export default function SettingsScreen() {
           label={`Reset all of ${name}'s coloring`}
           danger
           onPress={() =>
-            confirm(`Erase every page ${name} has colored?`, () => {
-              storage.resetUser(id);
-              bumpRevision();
-            })
+            guarded('reset everything', () =>
+              confirm(`Erase every page ${name} has colored?`, () => {
+                storage.resetUser(id);
+                bumpRevision();
+              }),
+            )
           }
         />
         <Row
           label={`Delete ${name}`}
           danger
           onPress={() =>
-            confirm(`Delete ${name} and all their coloring?`, () => {
-              router.dismissAll();
-              deleteUser(id);
-            })
+            guarded(`delete ${name}`, () =>
+              confirm(`Delete ${name} and all their coloring?`, () => {
+                router.dismissAll();
+                deleteUser(id);
+              }),
+            )
           }
         />
       </ScrollView>
+
+      <PinPrompt
+        visible={setup !== null}
+        title={setup?.step === 'repeat' ? 'Enter the PIN again' : 'Choose a 4-digit PIN'}
+        onCancel={() => setSetup(null)}
+        onSubmit={(pin) => {
+          if (setup?.step === 'choose') {
+            setSetup({ step: 'repeat', first: pin });
+            return null;
+          }
+          if (setup?.step === 'repeat' && pin !== setup.first) {
+            setSetup({ step: 'choose' });
+            return "PINs didn't match. Try again.";
+          }
+          setPin(id, pin);
+          setSetup(null);
+          return null;
+        }}
+      />
+      {pinPrompt}
     </View>
   );
 }
@@ -88,6 +145,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: 16 },
   section: { color: colors.accent, fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8, marginLeft: 4 },
+  note: { color: colors.textMuted, fontSize: 14, marginBottom: 10, marginHorizontal: 4 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

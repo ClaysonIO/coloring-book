@@ -18,7 +18,13 @@ export type Book = {
   cover?: ImageRef;
   pages: Page[];
   custom?: boolean;
+  /** The per-user blank-page book: can't be removed, pages are added blank. */
+  sketchbook?: boolean;
 };
+
+export const SKETCHBOOK_ID = 'sketchbook';
+export const SKETCHBOOK_COVER: number = require('../../assets/sketchbook/cover.png');
+export const BLANK_PAGE: number = require('../../assets/sketchbook/blank.png');
 
 /**
  * The bundled library, generated from ColoringPages/ by scripts/build-content.mjs

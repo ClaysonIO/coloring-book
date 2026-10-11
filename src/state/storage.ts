@@ -7,9 +7,19 @@ import type { PageLayer } from '../drawing/types';
  *   users.json                                 user list
  *   users/<userId>/<bookId>/<pageId>.json      the page's color layer
  *   users/<userId>/<bookId>/<pageId>.png       thumbnail of the colored page
+ *   users/<userId>/sketchbook.json             the user's own sketchbook page list
  * so resetting a page, a book or a user is deleting a file pair or a folder.
  */
-export type User = { id: string; name: string; color: string; createdAt: number };
+export type User = {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: number;
+  /** Optional 4-digit PIN guarding account deletion and account/book resets. A kid lock, not security. */
+  pin?: string;
+};
+
+export type SketchPage = { id: string; title: string };
 
 const root = () => new Directory(Paths.document, 'coloring');
 const usersFile = () => new File(root(), 'users.json');
@@ -81,4 +91,24 @@ export function resetBook(userId: string, bookId: string) {
 
 export function resetUser(userId: string) {
   deleteIfExists(userDir(userId));
+}
+
+const sketchbookFile = (userId: string) => new File(userDir(userId), 'sketchbook.json');
+
+/** A new user (or one whose account was reset) starts with a single blank page. */
+export function loadSketchbook(userId: string): SketchPage[] {
+  const file = sketchbookFile(userId);
+  if (file.exists) {
+    try {
+      return JSON.parse(file.textSync()) as SketchPage[];
+    } catch {
+      // fall through to the default
+    }
+  }
+  return [{ id: 'page-1', title: 'Page 1' }];
+}
+
+export function saveSketchbook(userId: string, pages: SketchPage[]) {
+  ensureDir(userDir(userId));
+  sketchbookFile(userId).write(JSON.stringify(pages));
 }

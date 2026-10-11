@@ -5,32 +5,42 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../components/confirm';
+import { usePinGate } from '../components/PinPrompt';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
+import type { User } from '../state/storage';
 import { ALL_ORIENTATIONS, avatarColors, colors } from '../theme';
 
 export default function ProfilesScreen() {
   const { users, selectUser, addUser, deleteUser, bumpRevision } = useUsers();
   const insets = useSafeAreaInsets();
   const [adding, setAdding] = useState(false);
+  const { gate, pinPrompt } = usePinGate();
 
   const open = (id: string) => {
     selectUser(id);
     router.push('/books');
   };
 
-  const manage = (id: string, name: string) => {
+  const manage = (user: User) => {
+    const { id, name } = user;
     Alert.alert(name, undefined, [
       {
         text: 'Reset all coloring',
         style: 'destructive',
         onPress: () =>
-          confirm(`Erase all of ${name}'s coloring?`, () => {
-            storage.resetUser(id);
-            bumpRevision();
-          }),
+          gate(user, `Enter ${name}'s PIN to reset everything`, () =>
+            confirm(`Erase all of ${name}'s coloring?`, () => {
+              storage.resetUser(id);
+              bumpRevision();
+            }),
+          ),
       },
-      { text: 'Delete user', style: 'destructive', onPress: () => confirm(`Delete ${name}?`, () => deleteUser(id)) },
+      {
+        text: 'Delete user',
+        style: 'destructive',
+        onPress: () => gate(user, `Enter ${name}'s PIN to delete ${name}`, () => confirm(`Delete ${name}?`, () => deleteUser(id))),
+      },
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
@@ -44,7 +54,7 @@ export default function ProfilesScreen() {
             key={u.id}
             style={styles.profile}
             onPress={() => open(u.id)}
-            onLongPress={() => manage(u.id, u.name)}
+            onLongPress={() => manage(u)}
             accessibilityLabel={u.name}
             accessibilityHint="Long press for options"
           >
@@ -75,6 +85,7 @@ export default function ProfilesScreen() {
           open(user.id);
         }}
       />
+      {pinPrompt}
     </View>
   );
 }

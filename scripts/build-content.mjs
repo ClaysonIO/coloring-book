@@ -145,6 +145,7 @@ async function main() {
     const bookId = slug(folder);
     if (!bookId) throw new ContentError(`${rel(dir)}: folder name needs at least one letter or digit`);
     if (books.some((b) => b.id === bookId)) throw new ContentError(`${rel(dir)}: two book folders map to id "${bookId}"`);
+    if (bookId === 'sketchbook') throw new ContentError(`${rel(dir)}: "sketchbook" is reserved for My Sketchbook; rename the folder`);
 
     const source = (p, what) => {
       const file = path.resolve(dir, p);

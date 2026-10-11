@@ -7,6 +7,7 @@ import { Grid } from '../components/Grid';
 import { Header, IconButton } from '../components/Header';
 import { NamePrompt } from '../components/NamePrompt';
 import { pickImages } from '../components/pickImages';
+import { usePinGate } from '../components/PinPrompt';
 import { AddTile, Tile } from '../components/Tile';
 import { useLibrary, type PickedImage } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
@@ -20,6 +21,7 @@ export default function BooksScreen() {
   const [cover, setCover] = useState<PickedImage | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; title: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const { gate, pinPrompt } = usePinGate();
   if (!currentUser) return <Redirect href="/" />;
 
   const open = (bookId: string, edit = false) =>
@@ -39,11 +41,14 @@ export default function BooksScreen() {
     }
   };
 
+  // Removing a book clears it for everyone, so it sits behind the PIN like resetting a book.
   const remove = (id: string, title: string) =>
-    Alert.alert(`Remove ${title}?`, "Its pages and everyone's coloring in it will be deleted.", [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeBook(id) },
-    ]);
+    gate(currentUser, `Enter ${currentUser.name}'s PIN to remove ${title}`, () =>
+      Alert.alert(`Remove ${title}?`, "Its pages and everyone's coloring in it will be deleted.", [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => removeBook(id) },
+      ]),
+    );
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -73,7 +78,7 @@ export default function BooksScreen() {
             paper={!book.cover}
             onPress={() => open(book.id, editing)}
             onLongPress={editing && book.custom ? () => setRenaming({ id: book.id, title: book.title }) : undefined}
-            onRemove={editing ? () => remove(book.id, book.title) : undefined}
+            onRemove={editing && !book.sketchbook ? () => remove(book.id, book.title) : undefined}
           />
         ))}
         {editing && <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} />}
@@ -112,6 +117,7 @@ export default function BooksScreen() {
         }}
       />
       <BusyOverlay message={busy} />
+      {pinPrompt}
     </View>
   );
 }

@@ -1,5 +1,7 @@
 name: Build
 
+# Builds run only for pushes to main (i.e. merged PRs) and for pull requests.
+# Pushes to main also publish the Android APK as a GitHub release.
 on:
   push:
     branches: [main]
@@ -8,11 +10,14 @@ on:
 
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: true
+  # Don't cancel main builds, or a quick second merge would skip a release.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
     name: Typecheck
+    # Manual runs are only allowed on main, so other branches never build.
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +54,31 @@ jobs:
         with:
           name: coloring-book-android
           path: android/app/build/outputs/apk/release/*.apk
+
+  release:
+    name: Android release
+    needs: android
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: coloring-book-android
+          path: apk
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(jq -r .expo.version app.json)
+          tag="v${version}-build.${{ github.run_number }}"
+          mv apk/*.apk "coloring-book-${tag}.apk"
+          gh release create "$tag" "coloring-book-${tag}.apk" \
+            --target "$GITHUB_SHA" \
+            --title "Coloring Book ${tag}" \
+            --generate-notes
 
   ios:
     name: iOS simulator build

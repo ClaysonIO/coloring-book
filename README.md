@@ -25,7 +25,21 @@ npm install
 npx expo start        # then press a for Android or i for iOS, or scan the QR code with Expo Go
 ```
 
-To build installable apps, use EAS (`npx eas-cli@latest build`). `npx tsc --noEmit` type-checks the project.
+`npx tsc --noEmit` type-checks the project.
+
+## Builds (GitHub Actions)
+
+`.github/workflows/build.yml` runs on pushes to `main`, on pull requests and on demand (Actions tab, then
+**Run workflow**). It needs no secrets.
+
+- **Typecheck**
+- **Android APK.** Download `coloring-book-android` from the run's artifacts and install it on any Android
+  device. It is signed with the debug key, which is fine for sideloading but not for the Play Store.
+- **iOS simulator build.** `coloring-book-ios-simulator` is an unsigned `.app` for the iOS Simulator.
+  This job mainly checks that the iOS project compiles.
+
+Installing on a real iPhone/iPad, or publishing to the stores, requires signing. Use EAS for that
+(`npx eas-cli@latest build`), which needs an Expo account and an Apple Developer account.
 
 ## Adding artwork
 

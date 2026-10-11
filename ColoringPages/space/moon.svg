@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
-  <rect width="1200" height="900" fill="white"/>
-  <g fill="none" stroke="black" stroke-width="10" stroke-linejoin="round">
-    <path d="M700 150 A320 320 0 1 0 700 750 A250 250 0 1 1 700 150 Z"/>
-    <circle cx="430" cy="380" r="40"/><circle cx="380" cy="560" r="55"/><circle cx="520" cy="620" r="30"/>
-    <path d="M950 200 l20 50 l52 4 l-40 34 l13 51 l-45 -28 l-45 28 l13 -51 l-40 -34 l52 -4 Z"/>
-    <path d="M1000 600 l14 34 l36 3 l-28 23 l9 35 l-31 -19 l-31 19 l9 -35 l-28 -23 l36 -3 Z"/>
-  </g>
-</svg>

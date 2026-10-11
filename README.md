@@ -100,16 +100,13 @@ their saved coloring for it. To rename a file safely, add `"id": "<old file name
 
 ### Church coloring pages
 
-The `church-*` books are the coloring pages from the Church of Jesus Christ's
+The books in `ColoringPages/` are the coloring pages from the Church of Jesus Christ's
 [Coloring Pages](https://www.churchofjesuschrist.org/media/collection/coloring-pages-images?lang=eng)
 collection, one book per grouping on that page (Family History, General, Christmas, Book of Mormon,
 Pearl of Great Price, General Conference). Re-download or update them with
 `node scripts/fetch-church-coloring-pages.mjs`, which skips files already present and rewrites each
 `_book.json`. The images are © by Intellectual Reserve, Inc. Check the site's terms of use before you
 distribute them.
-
-The other books in `ColoringPages/` are placeholders. They include a JPG, a WebP, a PDF and an SVG
-so every converter path is exercised.
 
 ## Storage
 

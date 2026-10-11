@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ImageRef } from '../content/books';
 import { colors } from '../theme';
@@ -27,10 +28,13 @@ export function Tile({ title, image, aspectRatio, paper, onPress, onLongPress, o
     >
       <View style={[styles.art, { aspectRatio }, paper && styles.paper]}>
         {image !== undefined && (
+          // Page art is up to 2048px; expo-image decodes it at tile size instead of full size.
           <Image
             source={typeof image === 'number' ? image : { uri: image }}
             style={styles.image}
-            resizeMode={paper ? 'contain' : 'cover'}
+            contentFit={paper ? 'contain' : 'cover'}
+            cachePolicy="memory"
+            transition={100}
           />
         )}
       </View>

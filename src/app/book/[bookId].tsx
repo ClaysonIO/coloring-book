@@ -87,12 +87,13 @@ export default function BookScreen() {
           </>
         }
       />
-      <Grid>
-        {book.pages.map((page) => {
+      <Grid
+        items={book.pages}
+        keyOf={(page) => page.id}
+        renderItem={(page) => {
           const thumb = storage.thumbnailUri(currentUser.id, book.id, page.id);
           return (
             <Tile
-              key={page.id}
               title={page.title}
               image={thumb ?? page.image}
               aspectRatio={1}
@@ -110,13 +111,15 @@ export default function BookScreen() {
               onRemove={editing ? () => remove(page.id, page.title) : undefined}
             />
           );
-        })}
-        {book.sketchbook ? (
-          <AddTile label="New page" aspectRatio={1} onPress={addSketchPage} />
-        ) : (
-          editing && <AddTile label="Add pages" aspectRatio={1} onPress={add} />
-        )}
-      </Grid>
+        }}
+        trailing={
+          book.sketchbook ? (
+            <AddTile label="New page" aspectRatio={1} onPress={addSketchPage} />
+          ) : editing ? (
+            <AddTile label="Add pages" aspectRatio={1} onPress={add} />
+          ) : undefined
+        }
+      />
 
       <NamePrompt
         visible={renaming !== null}

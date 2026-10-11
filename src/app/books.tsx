@@ -68,10 +68,11 @@ export default function BooksScreen() {
           </>
         }
       />
-      <Grid>
-        {books.map((book) => (
+      <Grid
+        items={books}
+        keyOf={(book) => book.id}
+        renderItem={(book) => (
           <Tile
-            key={book.id}
             title={book.title}
             image={book.cover ?? book.pages[0]?.image}
             aspectRatio={3 / 4}
@@ -80,9 +81,9 @@ export default function BooksScreen() {
             onLongPress={editing && book.custom ? () => setRenaming({ id: book.id, title: book.title }) : undefined}
             onRemove={editing && !book.sketchbook ? () => remove(book.id, book.title) : undefined}
           />
-        ))}
-        {editing && <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} />}
-      </Grid>
+        )}
+        trailing={editing ? <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} /> : undefined}
+      />
 
       <NamePrompt
         visible={creating}

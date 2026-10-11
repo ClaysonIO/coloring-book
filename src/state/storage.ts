@@ -19,7 +19,8 @@ export type User = {
   pin?: string;
 };
 
-export type SketchPage = { id: string; title: string };
+/** Width/height are the blank page's pixel size, fixed the first time the page is opened. */
+export type SketchPage = { id: string; title: string; width?: number; height?: number };
 
 const root = () => new Directory(Paths.document, 'coloring');
 const usersFile = () => new File(root(), 'users.json');

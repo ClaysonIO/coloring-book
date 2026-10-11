@@ -1,15 +1,15 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { drawAsImage, useImage } from '@shopify/react-native-skia';
+import { drawAsImage, Skia, useImage, type SkImage } from '@shopify/react-native-skia';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { PixelRatio, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../../../components/confirm';
 import { CrayonPicker } from '../../../components/CrayonPicker';
 import { Header, IconButton } from '../../../components/Header';
 import { ToolSheet } from '../../../components/ToolSheet';
-import type { ImageRef } from '../../../content/books';
+import type { Page } from '../../../content/books';
 import { TOOLS } from '../../../drawing/brushes';
 import { ColoringCanvas } from '../../../drawing/ColoringCanvas';
 import { buildWallMap, computeFill, type FillMask } from '../../../drawing/floodFill';
@@ -35,17 +35,56 @@ export default function ColorScreen() {
       userId={currentUser.id}
       bookId={bookId}
       pageId={pageId}
-      image={page.image}
+      page={page}
     />
   );
 }
 
-function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: string; pageId: string; image: ImageRef }) {
+/** Largest side of a generated sketchbook page, in pixels. */
+const MAX_BLANK_SIZE = 2048;
+
+/** A white page of the given size, for sketchbook pages. */
+function makeBlank(width: number, height: number): SkImage | null {
+  const surface = Skia.Surface.Make(width, height);
+  if (!surface) return null;
+  surface.getCanvas().clear(Skia.Color('white'));
+  surface.flush();
+  return surface.makeImageSnapshot().makeNonTextureImage();
+}
+
+/** Pixel size for a page that exactly fills `area` (in dp), as sharp as the screen up to MAX_BLANK_SIZE. */
+function blankSizeFor(area: { width: number; height: number }) {
+  const scale = Math.min(PixelRatio.get(), MAX_BLANK_SIZE / Math.max(area.width, area.height));
+  return { width: Math.round(area.width * scale), height: Math.round(area.height * scale) };
+}
+
+function Colorer({ userId, bookId, pageId, page }: { userId: string; bookId: string; pageId: string; page: Page }) {
   const insets = useSafeAreaInsets();
   const window = useWindowDimensions();
   const landscape = window.width > window.height;
   const { bumpRevision } = useUsers();
-  const base = useImage(image);
+  const { setSketchPageSize } = useLibrary();
+  const loadedImage = useImage(page.image ?? null);
+  const blank = page.blank;
+  const blankImage = useMemo(
+    () => (blank ? makeBlank(blank.width, blank.height) : null),
+    [blank?.width, blank?.height], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const base = blank !== undefined ? blankImage : loadedImage;
+
+  // A sketchbook page opened for the first time takes the shape of the space it's shown in,
+  // so it is landscape when opened in landscape and portrait in portrait.
+  const onArea = useCallback(
+    (width: number, height: number) => {
+      if (blank !== null || width < 50 || height < 50) return;
+      // Pages drawn on before sizing existed were 2048x1536; keep those drawings lined up.
+      const size = storage.loadLayer(userId, bookId, pageId)
+        ? { width: 2048, height: 1536 }
+        : blankSizeFor({ width, height });
+      setSketchPageSize(pageId, size.width, size.height);
+    },
+    [blank, userId, bookId, pageId, setSketchPageSize],
+  );
 
   const [ops, setOps] = useState<Op[]>(() => storage.loadLayer(userId, bookId, pageId)?.ops ?? []);
   const [redo, setRedo] = useState<Op[]>([]);
@@ -164,21 +203,18 @@ function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: st
 
   const canvas = (
     <View style={[styles.canvasArea, landscape && { paddingHorizontal: 6, paddingTop: insets.top + 6, paddingBottom: insets.bottom + 6 }]}>
-      {base ? (
-        <ColoringCanvas
-          base={base}
-          ops={ops}
-          fills={fills}
-          fillsVersion={fillsVersion}
-          tool={tool}
-          color={color}
-          size={size}
-          onFill={onFill}
-          onStroke={onStroke}
-        />
-      ) : (
-        <ActivityIndicator color={colors.accent} />
-      )}
+      <ColoringCanvas
+        base={base ?? null}
+        onArea={onArea}
+        ops={ops}
+        fills={fills}
+        fillsVersion={fillsVersion}
+        tool={tool}
+        color={color}
+        size={size}
+        onFill={onFill}
+        onStroke={onStroke}
+      />
     </View>
   );
 

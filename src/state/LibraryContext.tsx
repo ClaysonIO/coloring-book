@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
-import { BLANK_PAGE, bundledBooks, SKETCHBOOK_COVER, SKETCHBOOK_ID, type Book, type Page } from '../content/books';
+import { bundledBooks, SKETCHBOOK_COVER, SKETCHBOOK_ID, type Book, type Page } from '../content/books';
 import * as lib from './library';
 import type { CustomPage, LibraryData } from './library';
 import * as storage from './storage';
@@ -20,6 +20,8 @@ type LibraryContextValue = {
   renamePage: (bookId: string, pageId: string, title: string) => void;
   /** Adds a blank page to the current user's sketchbook. */
   addSketchPage: () => void;
+  /** Fixes a sketchbook page's size the first time it is opened. */
+  setSketchPageSize: (pageId: string, width: number, height: number) => void;
   removePage: (bookId: string, pageId: string) => void;
   hasRemovedBuiltIns: boolean;
   restoreBuiltIns: () => void;
@@ -86,7 +88,12 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       id: SKETCHBOOK_ID,
       title: 'My Sketchbook',
       cover: SKETCHBOOK_COVER,
-      pages: sketchPages.map((p) => ({ id: p.id, title: p.title, image: BLANK_PAGE, custom: true })),
+      pages: sketchPages.map((p) => ({
+        id: p.id,
+        title: p.title,
+        custom: true,
+        blank: p.width && p.height ? { width: p.width, height: p.height } : null,
+      })),
       sketchbook: true,
     };
     return [...(userId ? [sketchbook] : []), ...builtIn, ...custom];
@@ -196,6 +203,12 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     saveSketch([...sketchPages, { id: lib.newId(), title: `Page ${next}` }]);
   }, [sketchPages, saveSketch]);
 
+  const setSketchPageSize = useCallback(
+    (pageId: string, width: number, height: number) =>
+      saveSketch(sketchPages.map((p) => (p.id === pageId ? { ...p, width, height } : p))),
+    [sketchPages, saveSketch],
+  );
+
   const removePage = useCallback(
     (bookId: string, pageId: string) => {
       if (bookId === SKETCHBOOK_ID) {
@@ -234,11 +247,12 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       addPages,
       renamePage,
       addSketchPage,
+      setSketchPageSize,
       removePage,
       hasRemovedBuiltIns: data.hiddenBooks.length > 0 || data.hiddenPages.length > 0,
       restoreBuiltIns,
     }),
-    [books, getBook, getPage, createBook, renameBook, removeBook, addPages, renamePage, addSketchPage, removePage, data, restoreBuiltIns],
+    [books, getBook, getPage, createBook, renameBook, removeBook, addPages, renamePage, addSketchPage, setSketchPageSize, removePage, data, restoreBuiltIns],
   );
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;

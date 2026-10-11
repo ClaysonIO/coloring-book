@@ -1,6 +1,6 @@
 import { Canvas, type SkImage } from '@shopify/react-native-skia';
 import { useMemo, useRef, useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { brushWidth } from './brushes';
@@ -9,7 +9,8 @@ import { PageArtwork } from './PageArtwork';
 import type { FillOp, Op, StrokeOp, Tool } from './types';
 
 type Props = {
-  base: SkImage;
+  /** Null while loading. */
+  base: SkImage | null;
   ops: Op[];
   fills: Map<FillOp, FillMask | null>;
   fillsVersion: number;
@@ -19,24 +20,27 @@ type Props = {
   size: number;
   onFill: (x: number, y: number) => void;
   onStroke: (op: StrokeOp) => void;
+  /** Reports the space available for the page (used to size new sketchbook pages). */
+  onArea?: (width: number, height: number) => void;
 };
 
 /**
  * The page is always fit to the space available: no pinch-zoom and no panning,
  * so every touch is coloring.
  */
-export function ColoringCanvas({ base, ops, fills, fillsVersion, tool, color, size, onFill, onStroke }: Props) {
+export function ColoringCanvas({ base, ops, fills, fillsVersion, tool, color, size, onFill, onStroke, onArea }: Props) {
   const [area, setArea] = useState<{ width: number; height: number } | null>(null);
   const [live, setLive] = useState<StrokeOp | null>(null);
   const liveRef = useRef<StrokeOp | null>(null);
 
-  const imgW = base.width();
-  const imgH = base.height();
-  const scale = area ? Math.min(area.width / imgW, area.height / imgH) : 0;
+  const imgW = base?.width() ?? 1;
+  const imgH = base?.height() ?? 1;
+  const scale = area && base ? Math.min(area.width / imgW, area.height / imgH) : 0;
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     setArea({ width, height });
+    onArea?.(width, height);
   };
 
   const gesture = useMemo(() => {
@@ -84,7 +88,7 @@ export function ColoringCanvas({ base, ops, fills, fillsVersion, tool, color, si
 
   return (
     <View style={styles.area} onLayout={onLayout}>
-      {scale > 0 && (
+      {base && scale > 0 ? (
         <GestureDetector gesture={gesture}>
           <View style={[styles.page, { width: imgW * scale, height: imgH * scale }]}>
             <Canvas style={StyleSheet.absoluteFill}>
@@ -92,6 +96,8 @@ export function ColoringCanvas({ base, ops, fills, fillsVersion, tool, color, si
             </Canvas>
           </View>
         </GestureDetector>
+      ) : (
+        <ActivityIndicator color="#FFB59A" />
       )}
     </View>
   );

@@ -6,7 +6,13 @@ export type ImageRef = number | string;
 export type Page = {
   id: string;
   title: string;
-  image: ImageRef;
+  /** Absent for sketchbook pages, which are generated blank. */
+  image?: ImageRef;
+  /**
+   * Sketchbook pages only: the blank page's pixel size, or null until the page is first
+   * opened and sized to fill the screen in its current orientation.
+   */
+  blank?: { width: number; height: number } | null;
   /** Added in the app (can be renamed), as opposed to bundled from ColoringPages/. */
   custom?: boolean;
 };
@@ -24,7 +30,6 @@ export type Book = {
 
 export const SKETCHBOOK_ID = 'sketchbook';
 export const SKETCHBOOK_COVER: number = require('../../assets/sketchbook/cover.png');
-export const BLANK_PAGE: number = require('../../assets/sketchbook/blank.png');
 
 /**
  * The bundled library, generated from ColoringPages/ by scripts/build-content.mjs

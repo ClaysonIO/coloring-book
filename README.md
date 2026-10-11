@@ -11,6 +11,9 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
   never does. It's a kid lock: the PIN is stored on the device as plain text.
 - **My Sketchbook.** Every user has their own sketchbook of blank pages for free drawing. It starts with
   one page. Tap **New page** to add more, and use edit mode to remove or rename pages. It can't be removed.
+  The first time a page is opened, it's sized to fill all the space available for the page in the current
+  orientation: landscape pages when opened in landscape, portrait when opened in portrait. After that its
+  size is fixed, so the drawing never stretches.
 - **Books → pages → coloring**, in a dark UI.
 - **No zoom.** The page always fits the screen, so every touch colors.
 - **Landscape layout.** In landscape the back button, the crayons (in a column pointing at the page)

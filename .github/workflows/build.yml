@@ -30,7 +30,8 @@ jobs:
 
   android:
     name: Android APK
-    needs: check
+    # Runs alongside the typecheck (the release job waits for both) so it starts right away.
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,13 +44,28 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      # Caches the C++ compiled by CMake (app, Reanimated, Worklets, Skia glue), which
+      # Gradle's own cache doesn't cover. CMake picks the launcher up from the environment.
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-ccache
+          max-size: 2G
       - run: npm ci
       - name: Generate native project
         run: npx expo prebuild --platform android --no-install
       - name: Build release APK
         working-directory: android
         # Expo's template signs release builds with the debug keystore, so the APK installs directly.
-        run: ./gradlew assembleRelease --no-daemon
+        # Only phone/tablet CPUs are built (x86 and x86_64 are emulator-only), roughly halving the
+        # native compile; armeabi-v7a stays for 32-bit devices such as Amazon Fire tablets.
+        # The extra JVM memory stops the Gradle daemon running out of metaspace mid-build.
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        run: >-
+          ./gradlew assembleRelease --no-daemon
+          -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+          "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
       - uses: actions/upload-artifact@v4
         with:
           name: coloring-book-android
@@ -57,7 +73,7 @@ jobs:
 
   release:
     name: Android release
-    needs: android
+    needs: [check, android]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

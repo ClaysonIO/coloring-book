@@ -1,0 +1,44 @@
+{
+  "name": "coloring-book",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-community/slider": "5.2.0",
+    "@shopify/react-native-skia": "2.6.2",
+    "expo": "~57.0.27",
+    "expo-constants": "~57.0.21",
+    "expo-document-picker": "~57.0.3",
+    "expo-file-system": "~57.0.7",
+    "expo-image-manipulator": "~57.0.21",
+    "expo-image-picker": "~57.0.20",
+    "expo-linking": "~57.0.12",
+    "expo-router": "~57.0.25",
+    "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.4",
+    "perfect-freehand": "^1.2.3",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-worklets": "0.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "mupdf": "^1.28.1",
+    "sharp": "^0.35.5",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "content": "node scripts/build-content.mjs",
+    "postinstall": "npm run content",
+    "start": "npm run content && expo start",
+    "android": "npm run content && expo start --android",
+    "ios": "npm run content && expo start --ios",
+    "web": "npm run content && expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "private": true
+}

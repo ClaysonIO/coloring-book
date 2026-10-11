@@ -1,0 +1,84 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  android:
+    name: Android APK
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Generate native project
+        run: npx expo prebuild --platform android --no-install
+      - name: Build release APK
+        working-directory: android
+        # Expo's template signs release builds with the debug keystore, so the APK installs directly.
+        run: ./gradlew assembleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coloring-book-android
+          path: android/app/build/outputs/apk/release/*.apk
+
+  ios:
+    name: iOS simulator build
+    needs: check
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate native project and install pods
+        run: npx expo prebuild --platform ios
+      - name: Build for simulator (unsigned)
+        run: |
+          xcodebuild \
+            -workspace ios/ColoringBook.xcworkspace \
+            -scheme ColoringBook \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Zip app
+        run: |
+          cd ios/build/Build/Products/Release-iphonesimulator
+          zip -qry "$GITHUB_WORKSPACE/ColoringBook-simulator.zip" ColoringBook.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coloring-book-ios-simulator
+          path: ColoringBook-simulator.zip

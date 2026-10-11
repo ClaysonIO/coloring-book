@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { colors } from '../theme';
+import { ALL_ORIENTATIONS, colors } from '../theme';
 
 type Props = {
   visible: boolean;
@@ -22,7 +22,13 @@ export function NamePrompt({ visible, title, initialValue = '', confirmLabel, on
   const ok = value.trim().length > 0;
   const submit = () => ok && onConfirm(value.trim());
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal
+      supportedOrientations={ALL_ORIENTATIONS}
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
       <View style={styles.backdrop}>
         <View style={styles.dialog}>
           <Text style={styles.title}>{title}</Text>

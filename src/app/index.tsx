@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { confirm } from '../components/confirm';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
-import { avatarColors, colors } from '../theme';
+import { ALL_ORIENTATIONS, avatarColors, colors } from '../theme';
 
 export default function ProfilesScreen() {
   const { users, selectUser, addUser, deleteUser, bumpRevision } = useUsers();
@@ -98,7 +98,13 @@ function AddUserModal({
     setName('');
   };
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={canCancel ? onCancel : undefined}>
+    <Modal
+      supportedOrientations={ALL_ORIENTATIONS}
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={canCancel ? onCancel : undefined}
+    >
       <View style={styles.modalBackdrop}>
         <View style={styles.dialog}>
           <Text style={styles.dialogTitle}>{canCancel ? 'New user' : 'Welcome! What is your name?'}</Text>

@@ -8,6 +8,16 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
 - **Local user profiles.** "Who's coloring?" picker on launch. Each user has their own coloring.
 - **Books → pages → coloring**, in a dark UI.
 - **No zoom.** The page always fits the screen, so every touch colors.
+- **Landscape layout.** In landscape the back button, the crayons (in a column pointing at the page)
+  and the tool buttons move to the left and right sides, so the page gets the full height.
+- **Add books and pages in the app.** Tap the pencil on the books screen or inside a book to edit.
+  - **New book:** a name plus an optional cover.
+  - **Add pages:** pick many images at once from Photos or Files.
+  - **Rename:** long-press a book or page added in the app.
+  - **Remove:** tap the red ✕ on a book or page. Removing one also deletes everyone's coloring on it.
+    Built-in books and pages are only hidden, and Settings can bring them back.
+  - Images added in the app are stored on the device as PNGs (max 2048 px). PDFs can't be added
+    in the app; put them in `ColoringPages/` instead.
 - **Each page is a layer over the base image.** The line art is multiplied on top of the color layer,
   so color never covers the lines, and the eraser only removes color.
 - **Brushes:** fill bucket, crayon (grainy), marker, paintbrush (tapered, via
@@ -99,6 +109,8 @@ Everything is stored on the device under `<documents>/coloring/`:
 users.json
 users/<userId>/<bookId>/<pageId>.json   ordered list of strokes and fills (the color layer)
 users/<userId>/<bookId>/<pageId>.png    thumbnail shown in the page grid
+library/library.json                    books and pages added in the app, and hidden built-ins
+library/images/<id>.png                 images added in the app
 ```
 
 Strokes are saved in base-image pixels, and fills are saved as tap points that get recomputed on load.

@@ -1,10 +1,15 @@
 import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../theme';
+import { ALL_ORIENTATIONS, colors } from '../theme';
 
 export function BusyOverlay({ message }: { message: string | null }) {
   return (
-    <Modal visible={message !== null} transparent animationType="fade">
+    <Modal
+      supportedOrientations={ALL_ORIENTATIONS}
+      visible={message !== null}
+      transparent
+      animationType="fade"
+    >
       <View style={styles.backdrop}>
         <View style={styles.box}>
           <ActivityIndicator color={colors.accent} size="large" />

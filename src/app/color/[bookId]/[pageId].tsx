@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { drawAsImage, useImage } from '@shopify/react-native-skia';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../../../components/confirm';
@@ -42,6 +42,8 @@ export default function ColorScreen() {
 
 function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: string; pageId: string; image: ImageRef }) {
   const insets = useSafeAreaInsets();
+  const window = useWindowDimensions();
+  const landscape = window.width > window.height;
   const { bumpRevision } = useUsers();
   const base = useImage(image);
 
@@ -160,56 +162,97 @@ function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: st
 
   const toolIcon = TOOLS.find((t) => t.tool === tool)!.icon as keyof typeof MaterialCommunityIcons.glyphMap;
 
+  const canvas = (
+    <View style={[styles.canvasArea, landscape && { paddingHorizontal: 6, paddingTop: insets.top + 6, paddingBottom: insets.bottom + 6 }]}>
+      {base ? (
+        <ColoringCanvas
+          base={base}
+          ops={ops}
+          fills={fills}
+          fillsVersion={fillsVersion}
+          tool={tool}
+          color={color}
+          size={size}
+          onFill={onFill}
+          onStroke={onStroke}
+        />
+      ) : (
+        <ActivityIndicator color={colors.accent} />
+      )}
+    </View>
+  );
+
+  const buttons = (
+    <>
+      <IconButton icon="restore" label="Reset page" onPress={resetPage} disabled={ops.length === 0} />
+      <View style={landscape ? styles.dividerH : styles.divider} />
+      <IconButton icon="undo" label="Undo" onPress={undo} disabled={ops.length === 0} />
+      <IconButton icon="redo" label="Redo" onPress={redoOne} disabled={redo.length === 0} />
+      <View style={landscape ? styles.dividerH : styles.divider} />
+      <Pressable style={styles.toolButton} onPress={() => setSheetOpen(true)} accessibilityLabel="Coloring tools">
+        <View style={[styles.toolCorner, { borderTopColor: tool === 'eraser' ? '#FFFFFF' : color }]} />
+        <MaterialCommunityIcons name={toolIcon} size={30} color={colors.text} />
+      </Pressable>
+    </>
+  );
+
+  const sheet = (
+    <ToolSheet
+      visible={sheetOpen}
+      tool={tool}
+      size={size}
+      color={color}
+      onTool={setTool}
+      onSize={setSize}
+      onClose={() => setSheetOpen(false)}
+    />
+  );
+
+  // Landscape: every control moves to the short sides so the page gets the full height.
+  // [back] | page | crayons (pointing at the page) | tool buttons
+  if (landscape) {
+    return (
+      <View style={[styles.screen, styles.row]}>
+        <View style={[styles.sideBar, { paddingLeft: insets.left + 4, paddingTop: insets.top + 8 }]}>
+          <IconButton icon="arrow-left" label="Back" onPress={() => router.back()} />
+        </View>
+        {canvas}
+        <CrayonPicker selected={color} onSelect={pickColor} vertical insetStart={insets.top} insetEnd={insets.bottom} />
+        <View
+          style={[
+            styles.toolbarVertical,
+            { paddingRight: insets.right + 6, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8 },
+          ]}
+        >
+          {buttons}
+        </View>
+        {sheet}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.screen}>
       <Header onBack={() => router.back()} />
-      <View style={styles.canvasArea}>
-        {base ? (
-          <ColoringCanvas
-            base={base}
-            ops={ops}
-            fills={fills}
-            fillsVersion={fillsVersion}
-            tool={tool}
-            color={color}
-            size={size}
-            onFill={onFill}
-            onStroke={onStroke}
-          />
-        ) : (
-          <ActivityIndicator color={colors.accent} />
-        )}
-      </View>
-
+      {canvas}
       <CrayonPicker selected={color} onSelect={pickColor} />
-
-      <View style={[styles.toolbar, { paddingBottom: insets.bottom + 10 }]}>
-        <IconButton icon="restore" label="Reset page" onPress={resetPage} disabled={ops.length === 0} />
-        <View style={styles.divider} />
-        <IconButton icon="undo" label="Undo" onPress={undo} disabled={ops.length === 0} />
-        <IconButton icon="redo" label="Redo" onPress={redoOne} disabled={redo.length === 0} />
-        <View style={styles.divider} />
-        <Pressable style={styles.toolButton} onPress={() => setSheetOpen(true)} accessibilityLabel="Coloring tools">
-          <View style={[styles.toolCorner, { borderTopColor: tool === 'eraser' ? '#FFFFFF' : color }]} />
-          <MaterialCommunityIcons name={toolIcon} size={30} color={colors.text} />
-        </Pressable>
-      </View>
-
-      <ToolSheet
-        visible={sheetOpen}
-        tool={tool}
-        size={size}
-        color={color}
-        onTool={setTool}
-        onSize={setSize}
-        onClose={() => setSheetOpen(false)}
-      />
+      <View style={[styles.toolbar, { paddingBottom: insets.bottom + 10 }]}>{buttons}</View>
+      {sheet}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#0E0E0E' },
+  row: { flexDirection: 'row' },
+  sideBar: { backgroundColor: colors.background, paddingRight: 4 },
+  toolbarVertical: {
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    backgroundColor: colors.surface,
+    paddingLeft: 6,
+  },
+  dividerH: { height: 1, width: 36, backgroundColor: colors.outline },
   canvasArea: { flex: 1, padding: 12, justifyContent: 'center' },
   toolbar: {
     flexDirection: 'row',

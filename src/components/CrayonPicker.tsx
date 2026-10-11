@@ -17,40 +17,61 @@ export const CRAYON_COLORS = [
 
 const CRAYON_WIDTH = 44;
 const GAP = 4;
+/** How far unselected crayons sit back into the box; the selected one sticks out. */
+const SUNK = 28;
 
-type Props = { selected: string; onSelect: (color: string) => void };
+type Props = {
+  selected: string;
+  onSelect: (color: string) => void;
+  /** Landscape: a column of crayons pointing left, toward the page. */
+  vertical?: boolean;
+  /** Extra padding at the start/end of the list, e.g. safe-area insets in landscape. */
+  insetStart?: number;
+  insetEnd?: number;
+};
 
-export function CrayonPicker({ selected, onSelect }: Props) {
+export function CrayonPicker({ selected, onSelect, vertical, insetStart = 0, insetEnd = 0 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
 
-  // Start with the selected crayon in view.
+  // Keep the selected crayon in view (also after rotating).
   useEffect(() => {
     const index = CRAYON_COLORS.indexOf(selected);
-    if (index > 2) scrollRef.current?.scrollTo({ x: (index - 2) * (CRAYON_WIDTH + GAP), animated: false });
+    const offset = Math.max(0, (index - 2) * (CRAYON_WIDTH + GAP));
+    scrollRef.current?.scrollTo(vertical ? { y: offset, animated: false } : { x: offset, animated: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [vertical]);
 
   return (
     <ScrollView
       ref={scrollRef}
-      horizontal
+      horizontal={!vertical}
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}
-      style={styles.scroller}
+      showsVerticalScrollIndicator={false}
+      style={vertical ? styles.scrollerVertical : styles.scroller}
+      contentContainerStyle={
+        vertical
+          ? [styles.column, { paddingTop: 8 + insetStart, paddingBottom: 8 + insetEnd }]
+          : [styles.row, { paddingLeft: 8 + insetStart, paddingRight: 8 + insetEnd }]
+      }
     >
       {CRAYON_COLORS.map((color) => (
         <Pressable key={color} onPress={() => onSelect(color)} accessibilityLabel={`Color ${color}`}>
-          <Crayon color={color} selected={color === selected} />
+          {vertical ? (
+            <SideCrayon color={color} selected={color === selected} />
+          ) : (
+            <Crayon color={color} selected={color === selected} />
+          )}
         </Pressable>
       ))}
     </ScrollView>
   );
 }
 
+/** Upright crayon, tip up (portrait). */
 function Crayon({ color, selected }: { color: string; selected: boolean }) {
   const isWhite = color === '#FFFFFF';
   return (
-    <View style={[styles.crayon, selected && styles.crayonSelected]}>
+    <View style={[styles.crayon, !selected && { transform: [{ translateY: SUNK }] }]}>
       <View style={[styles.nub, { backgroundColor: color }]} />
       <View style={[styles.tip, { borderBottomColor: color }]} />
       <View style={[styles.body, { backgroundColor: color }, isWhite && styles.whiteBody]}>
@@ -62,26 +83,62 @@ function Crayon({ color, selected }: { color: string; selected: boolean }) {
   );
 }
 
-const TIP_HEIGHT = 34;
+/** Sideways crayon, tip pointing left (landscape). */
+function SideCrayon({ color, selected }: { color: string; selected: boolean }) {
+  const isWhite = color === '#FFFFFF';
+  return (
+    <View style={[styles.sideCrayon, !selected && { transform: [{ translateX: SUNK }] }]}>
+      <View style={[styles.sideNub, { backgroundColor: color }]} />
+      <View style={[styles.sideTip, { borderRightColor: color }]} />
+      <View style={[styles.sideBody, { backgroundColor: color }, isWhite && styles.whiteBody]}>
+        <View style={styles.sideHighlight} />
+        <View style={[styles.sideBand, { left: 10 }]} />
+        <View style={[styles.sideBand, { left: 56 }]} />
+      </View>
+    </View>
+  );
+}
+
+const TIP_LENGTH = 34;
 const TIP_INSET = 11;
+const NUB_SIZE = CRAYON_WIDTH - TIP_INSET * 2 - 6;
+const LENGTH = 6 + TIP_LENGTH + 80;
 
 const styles = StyleSheet.create({
   scroller: { flexGrow: 0 },
-  row: { paddingHorizontal: 8, gap: GAP, alignItems: 'flex-end', height: 120 },
-  crayon: { width: CRAYON_WIDTH, alignItems: 'center', transform: [{ translateY: 28 }] },
-  crayonSelected: { transform: [{ translateY: 0 }] },
-  nub: { width: CRAYON_WIDTH - TIP_INSET * 2 - 6, height: 6, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+  scrollerVertical: { flexGrow: 0, width: LENGTH - SUNK + 8 },
+  row: { gap: GAP, alignItems: 'flex-end', height: LENGTH },
+  column: { gap: GAP, alignItems: 'flex-start', paddingLeft: 8 },
+
+  crayon: { width: CRAYON_WIDTH, alignItems: 'center' },
+  nub: { width: NUB_SIZE, height: 6, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
   tip: {
     width: CRAYON_WIDTH,
     height: 0,
-    borderBottomWidth: TIP_HEIGHT,
+    borderBottomWidth: TIP_LENGTH,
     borderLeftWidth: TIP_INSET,
     borderRightWidth: TIP_INSET,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
   },
   body: { width: CRAYON_WIDTH, height: 80, borderTopLeftRadius: 3, borderTopRightRadius: 3, overflow: 'hidden' },
-  whiteBody: { borderWidth: StyleSheet.hairlineWidth, borderColor: '#999' },
   highlight: { position: 'absolute', left: 5, top: 0, bottom: 0, width: 6, backgroundColor: 'rgba(255,255,255,0.3)' },
   band: { position: 'absolute', left: 0, right: 0, height: 8, backgroundColor: 'rgba(0,0,0,0.18)' },
+
+  sideCrayon: { height: CRAYON_WIDTH, flexDirection: 'row', alignItems: 'center' },
+  sideNub: { width: 6, height: NUB_SIZE, borderTopLeftRadius: 4, borderBottomLeftRadius: 4 },
+  sideTip: {
+    width: 0,
+    height: CRAYON_WIDTH,
+    borderRightWidth: TIP_LENGTH,
+    borderTopWidth: TIP_INSET,
+    borderBottomWidth: TIP_INSET,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+  },
+  sideBody: { width: 80, height: CRAYON_WIDTH, borderTopLeftRadius: 3, borderBottomLeftRadius: 3, overflow: 'hidden' },
+  sideHighlight: { position: 'absolute', top: 5, left: 0, right: 0, height: 6, backgroundColor: 'rgba(255,255,255,0.3)' },
+  sideBand: { position: 'absolute', top: 0, bottom: 0, width: 8, backgroundColor: 'rgba(0,0,0,0.18)' },
+
+  whiteBody: { borderWidth: StyleSheet.hairlineWidth, borderColor: '#999' },
 });

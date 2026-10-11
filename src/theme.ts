@@ -1,3 +1,5 @@
+import type { ModalProps } from 'react-native';
+
 export const colors = {
   background: '#121212',
   surface: '#1E1E1E',
@@ -13,3 +15,12 @@ export const colors = {
 
 /** Avatar colors offered when creating a user. */
 export const avatarColors = ['#F28B82', '#FBBC04', '#81C995', '#78D9EC', '#8AB4F8', '#C58AF9', '#FF8BCB', '#FDAB6B'];
+
+/** iOS modals only allow portrait unless told otherwise, which would rotate the app when one opens. */
+export const ALL_ORIENTATIONS: ModalProps['supportedOrientations'] = [
+  'portrait',
+  'portrait-upside-down',
+  'landscape',
+  'landscape-left',
+  'landscape-right',
+];

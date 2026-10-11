@@ -107,8 +107,15 @@ wrong, such as a missing file, bad JSON or a PDF page that doesn't exist, it sto
 for PDF pages after the first). Renaming a folder or file after people have started coloring hides
 their saved coloring for it. To rename a file safely, add `"id": "<old file name>"` to that page.
 
-The books in `ColoringPages/` now are placeholders. They include a JPG, a WebP, a PDF and an SVG
-so every converter path is exercised.
+### Church coloring pages
+
+The books in `ColoringPages/` are the coloring pages from the Church of Jesus Christ's
+[Coloring Pages](https://www.churchofjesuschrist.org/media/collection/coloring-pages-images?lang=eng)
+collection, one book per grouping on that page (Family History, General, Christmas, Book of Mormon,
+Pearl of Great Price, General Conference). Re-download or update them with
+`node scripts/fetch-church-coloring-pages.mjs`, which skips files already present and rewrites each
+`_book.json`. The images are © by Intellectual Reserve, Inc. Check the site's terms of use before you
+distribute them.
 
 ## Storage
 
@@ -133,6 +140,7 @@ matching file or folder.
 |---|---|
 | `ColoringPages/` | Book and page artwork plus `_book.json` (source of truth) |
 | `scripts/build-content.mjs` | Converts `ColoringPages/` into bundled PNGs and the generated book list |
+| `scripts/fetch-church-coloring-pages.mjs` | Downloads the Church coloring pages into `ColoringPages/church-*` |
 | `src/app/` | Screens (Expo Router): profiles, books, book pages, coloring, settings |
 | `src/drawing/ColoringCanvas.tsx` | Fit-to-screen canvas and touch handling |
 | `src/drawing/PageArtwork.tsx` | Draw order: paper, color layer, line art |

@@ -4,13 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../components/confirm';
 import { Header } from '../components/Header';
-import { books } from '../content/books';
+import { useLibrary } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
 import { colors } from '../theme';
 
 export default function SettingsScreen() {
   const { currentUser, deleteUser, selectUser, bumpRevision } = useUsers();
+  const { books, hasRemovedBuiltIns, restoreBuiltIns } = useLibrary();
   const insets = useSafeAreaInsets();
   if (!currentUser) return <Redirect href="/" />;
   const { id, name } = currentUser;
@@ -33,6 +34,13 @@ export default function SettingsScreen() {
             }
           />
         ))}
+
+        {hasRemovedBuiltIns && (
+          <>
+            <Text style={styles.section}>Library</Text>
+            <Row label="Bring back removed built-in books and pages" onPress={restoreBuiltIns} />
+          </>
+        )}
 
         <Text style={styles.section}>Account</Text>
         <Row

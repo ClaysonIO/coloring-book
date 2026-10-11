@@ -9,12 +9,13 @@ import { confirm } from '../../../components/confirm';
 import { CrayonPicker } from '../../../components/CrayonPicker';
 import { Header, IconButton } from '../../../components/Header';
 import { ToolSheet } from '../../../components/ToolSheet';
-import { getPage } from '../../../content/books';
+import type { ImageRef } from '../../../content/books';
 import { TOOLS } from '../../../drawing/brushes';
 import { ColoringCanvas } from '../../../drawing/ColoringCanvas';
 import { buildWallMap, computeFill, type FillMask } from '../../../drawing/floodFill';
 import { PageArtwork } from '../../../drawing/PageArtwork';
 import type { FillOp, Op, StrokeOp, Tool } from '../../../drawing/types';
+import { useLibrary } from '../../../state/LibraryContext';
 import { useUsers } from '../../../state/UsersContext';
 import * as storage from '../../../state/storage';
 import { colors } from '../../../theme';
@@ -25,6 +26,7 @@ const THUMB_DELAY_MS = 800;
 export default function ColorScreen() {
   const { bookId, pageId } = useLocalSearchParams<{ bookId: string; pageId: string }>();
   const { currentUser } = useUsers();
+  const { getPage } = useLibrary();
   const page = getPage(bookId, pageId);
   if (!currentUser || !page) return <Redirect href="/" />;
   return (
@@ -38,7 +40,7 @@ export default function ColorScreen() {
   );
 }
 
-function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: string; pageId: string; image: number }) {
+function Colorer({ userId, bookId, pageId, image }: { userId: string; bookId: string; pageId: string; image: ImageRef }) {
   const insets = useSafeAreaInsets();
   const { bumpRevision } = useUsers();
   const base = useImage(image);

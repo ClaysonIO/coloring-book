@@ -1,31 +1,29 @@
 import { generatedBooks } from './books.generated';
 
+/** A bundled image (`require('…png')`) or a file:// uri for images added in the app. */
+export type ImageRef = number | string;
+
 export type Page = {
   id: string;
   title: string;
-  /** A bundled image (`require('…png')`). */
-  image: number;
+  image: ImageRef;
+  /** Added in the app (can be renamed), as opposed to bundled from ColoringPages/. */
+  custom?: boolean;
 };
 
 export type Book = {
   id: string;
   title: string;
   /** Optional cover art; falls back to the first page's image. */
-  cover?: number;
+  cover?: ImageRef;
   pages: Page[];
+  custom?: boolean;
 };
 
 /**
  * The bundled library, generated from ColoringPages/ by scripts/build-content.mjs
  * (see the README). Ids are storage keys for saved coloring, so keep folder and
- * file names stable once people have started coloring.
+ * file names stable once people have started coloring. Books and pages added in
+ * the app are merged in by LibraryContext.
  */
-export const books: Book[] = generatedBooks;
-
-export function getBook(bookId: string): Book | undefined {
-  return books.find((b) => b.id === bookId);
-}
-
-export function getPage(bookId: string, pageId: string): Page | undefined {
-  return getBook(bookId)?.pages.find((p) => p.id === pageId);
-}
+export const bundledBooks: Book[] = generatedBooks;

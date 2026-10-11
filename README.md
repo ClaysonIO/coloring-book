@@ -3,6 +3,11 @@
 A simple, fully offline coloring app for Android, iPhone and iPad, built with Expo (React Native) and
 [React Native Skia](https://shopify.github.io/react-native-skia/).
 
+**Website:** https://claysonio.github.io/coloring-book/ ([privacy policy](https://claysonio.github.io/coloring-book/privacy.html),
+[support](https://claysonio.github.io/coloring-book/support.html)). Its source is in `docs/`, and
+`.github/workflows/pages.yml` publishes it. Store listing text and submission answers are in
+[STORE_LISTING.md](STORE_LISTING.md).
+
 ## Features
 
 - **Local user profiles.** "Who's coloring?" picker on launch. Each user has their own coloring.

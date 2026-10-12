@@ -61,7 +61,11 @@ npm start             # converts ColoringPages, then starts Expo; press a for An
 ## Builds (GitHub Actions)
 
 `.github/workflows/build.yml` runs on pushes to `main`, on pull requests and on demand (Actions tab, then
-**Run workflow**). It needs no secrets.
+**Run workflow**). It needs no secrets. Pushes and pull requests only build when they change something the app
+is built from (`src/`, `assets/`, `ColoringPages/`, the content build scripts, `app.json`, the package files,
+`tsconfig.json` or the workflow itself). Website changes (`docs/`, `BookPacks/`) and doc edits skip it; the
+**Website** workflow publishes those. If you add a new folder or config file the app is built from, add it to
+the `paths` lists in the workflow.
 
 - **Typecheck**
 - **Android APK.** Download `coloring-book-android` from the run's artifacts and install it on any Android

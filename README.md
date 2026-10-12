@@ -66,7 +66,7 @@ npm start             # converts ColoringPages, then starts Expo; press a for An
 ## Builds (GitHub Actions)
 
 `.github/workflows/build.yml` runs on pushes to `main`, on pull requests and on demand (Actions tab, then
-**Run workflow**). It needs no secrets. Pushes and pull requests only build when they change something the app
+**Run workflow**). It needs no secrets (the optional Android signing secrets are below). Pushes and pull requests only build when they change something the app
 is built from (`src/`, `assets/`, `ColoringPages/`, the content build scripts, `app.json`, the package files,
 `tsconfig.json` or the workflow itself). Website changes (`docs/`, `BookPacks/`) and doc edits skip it; the
 **Website** workflow publishes those. If you add a new folder or config file the app is built from, add it to
@@ -74,9 +74,35 @@ the `paths` lists in the workflow.
 
 - **Typecheck**
 - **Android APK.** Download `coloring-book-android` from the run's artifacts and install it on any Android
-  device. It is signed with the debug key, which is fine for sideloading but not for the Play Store.
+  device. It is signed with the release key when the signing secrets below are set, otherwise with the
+  public debug key (fine for trying the app, but anyone can sign an APK with it, and the Play Store rejects it).
 - **iOS simulator build.** `coloring-book-ios-simulator` is an unsigned `.app` for the iOS Simulator.
   This job mainly checks that the iOS project compiles.
+
+### Android release signing
+
+Add these repository secrets (Settings → Secrets and variables → Actions) and the Android job signs with
+your key instead of the debug key:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | The keystore file, base64-encoded |
+| `ANDROID_KEYSTORE_PASSWORD` | The keystore password |
+| `ANDROID_KEY_ALIAS` | The key's alias |
+| `ANDROID_KEY_PASSWORD` | The key password (optional; defaults to the keystore password) |
+
+To create a keystore (keep the file and passwords somewhere safe; never commit them):
+
+```bash
+keytool -genkeypair -v -keystore release.keystore -alias coloring-book \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -w 0 release.keystore   # macOS: base64 -i release.keystore
+```
+
+If `ANDROID_KEYSTORE_BASE64` is unset, builds fall back to the debug key. Pull requests from forks never
+get secrets, so they always use the debug key. Android only installs an update signed with the same key as
+the installed app, so changing keys means uninstalling first, which deletes the colored pages saved on the
+device. Pick a key once and keep it.
 
 Installing on a real iPhone/iPad, or publishing to the stores, requires signing. Use EAS for that
 (`npx eas-cli@latest build`), which needs an Expo account and an Apple Developer account.

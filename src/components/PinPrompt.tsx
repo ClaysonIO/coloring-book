@@ -29,6 +29,13 @@ export function PinPrompt({ visible, title, onSubmit, onCancel }: Props) {
   // A new step (e.g. "enter it again") starts with empty digits but keeps any error from the last one.
   useEffect(() => setPin(''), [title]);
 
+  // autoFocus inside a Modal is unreliable (the keyboard often never appears), so focus once the
+  // modal has finished showing. Blurring first makes focus() reopen a keyboard the user dismissed.
+  const focusInput = () => {
+    input.current?.blur();
+    setTimeout(() => input.current?.focus(), 50);
+  };
+
   const change = (text: string) => {
     const digits = text.replace(/\D/g, '').slice(0, PIN_LENGTH);
     setPin(digits);
@@ -50,27 +57,31 @@ export function PinPrompt({ visible, title, onSubmit, onCancel }: Props) {
       transparent
       animationType="fade"
       onRequestClose={onCancel}
+      onShow={focusInput}
     >
       <View style={styles.backdrop}>
         <View style={styles.dialog}>
           <Text style={styles.title}>{title}</Text>
-          <Pressable style={styles.dots} onPress={() => input.current?.focus()}>
+          <View style={styles.dots}>
             {Array.from({ length: PIN_LENGTH }, (_, i) => (
               <View key={i} style={[styles.dot, i < pin.length && styles.dotFilled]} />
             ))}
-          </Pressable>
+            {/* The real input sits invisibly over the dots, so tapping them opens the keyboard directly. */}
+            <TextInput
+              ref={input}
+              value={pin}
+              onChangeText={change}
+              keyboardType="number-pad"
+              secureTextEntry
+              maxLength={PIN_LENGTH}
+              caretHidden
+              contextMenuHidden
+              selectionColor="transparent"
+              style={styles.hiddenInput}
+              accessibilityLabel="PIN"
+            />
+          </View>
           <Text style={styles.error}>{error ?? ' '}</Text>
-          <TextInput
-            ref={input}
-            value={pin}
-            onChangeText={change}
-            keyboardType="number-pad"
-            secureTextEntry
-            maxLength={PIN_LENGTH}
-            autoFocus
-            style={styles.hiddenInput}
-            accessibilityLabel="PIN"
-          />
           <Pressable onPress={onCancel} hitSlop={8} style={styles.cancelButton}>
             <Text style={styles.cancel}>Cancel</Text>
           </Pressable>
@@ -127,7 +138,8 @@ const styles = StyleSheet.create({
   dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.accent },
   dotFilled: { backgroundColor: colors.accent },
   error: { color: colors.danger, marginTop: 10, fontSize: 15 },
-  hiddenInput: { position: 'absolute', width: 1, height: 1, opacity: 0 },
+  // Kept fully opaque (an invisible or 1px view may not take touches or focus); the text itself is transparent.
+  hiddenInput: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, color: 'transparent', backgroundColor: 'transparent', fontSize: 1 },
   cancelButton: { marginTop: 16 },
   cancel: { color: colors.textMuted, fontSize: 17 },
 });

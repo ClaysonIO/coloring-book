@@ -1,0 +1,238 @@
+{
+  "conversations": [
+    {
+      "id": "session_01Lv4qa3cSiSsB5jCXHypRww",
+      "title": "Coloring app remix for mobile",
+      "started": "2026-10-11T15:16:49Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T15:16:50Z",
+          "text": "I want to remix a coloring app for android, iPad, and iPhone. \n\nThe UI is good. What i want to change is make it so that the coloring page can't be zoomed in or out. \n\nI'll provide imagery later. \n\nThe app will be fully local. \n\nKeep it simple. \n\nHave user accounts \n\nEach coloring page is a layer on top of the base image. Allow us to reset one,  a book,  or the whole user's account. \n\nThe crayon color selector at the bottom should be pulled left and right,  so we have more colors. \n\nNo need for a print or info button or title on the coloring page. \n\nIf we can find a library that supports multiple brushes,  that would be neat."
+        },
+        {
+          "ts": "2026-10-11T15:18:09Z",
+          "text": "Also use a github action to build this"
+        },
+        {
+          "ts": "2026-10-11T15:29:50Z",
+          "text": "Yes"
+        },
+        {
+          "ts": "2026-10-11T15:30:51Z",
+          "text": "Option 1, go ahead"
+        },
+        {
+          "ts": "2026-10-11T18:01:55Z",
+          "text": "For uploading images, create a folder called ColoringPages. Inside of it, each folder will be a book. In it should be a _book.json file with a book name, path to cover image, and an array of objects with coloring page names and paths. Accept pdf, jpg, png, etc as image types. \n\nThis is how I'll add the actual images. Populate it with your sample imagery for now"
+        },
+        {
+          "ts": "2026-10-11T18:03:19Z",
+          "text": "Also,  from the main page, allow the creation of new coloring pages and books (and removing existing ones), with the ability to select many images in bulk"
+        },
+        {
+          "ts": "2026-10-11T18:07:19Z",
+          "text": "Next request when you're done -- when in landscape mode, make the pencils go vertical in the short end. Put other buttons vertical as well, and the app bar on the other vertical. We want as much space for the image as we can."
+        },
+        {
+          "ts": "2026-10-11T18:18:48Z",
+          "text": "Add an optional pin to accounts that prevents deleting the account,  or clearing the whole account or entire books (allow clearing single pages)\n\nAdd a default 'book' called My Sketchbook. This defaults to a single blank page. Users can add and delete pages in this book. This gives users a place to draw their own things, not just color. Give it a pretty image on the cover, a blank notebook with a pencil."
+        },
+        {
+          "ts": "2026-10-11T18:25:23Z",
+          "text": "Match the screen on size. They should fill the available space, so we get as much drawing space as possible. When in landscape, create a landscape. When in portrait, go portrait"
+        }
+      ]
+    },
+    {
+      "id": "session_01Q2idNiBNxBdH48zGss2STt",
+      "title": "Coloring pages books",
+      "started": "2026-10-11T18:18:59Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T18:19:57Z",
+          "text": "Create books by downloading the coloring pages from this link. Group them by the groupings on the page:\n\nhttps://www.churchofjesuschrist.org/media/collection/coloring-pages-images?lang=eng"
+        },
+        {
+          "ts": "2026-10-11T18:24:07Z",
+          "text": "Try again"
+        },
+        {
+          "ts": "2026-10-11T18:33:17Z",
+          "text": "Remove the placeholder books"
+        }
+      ]
+    },
+    {
+      "id": "session_01KVfrfV3S1hGJ8njCvm1Vvf",
+      "title": "Coloring book icon",
+      "started": "2026-10-11T18:34:08Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T18:34:54Z",
+          "text": "Create a nice icon for the coloring book. Maybe something like a beautiful crayon."
+        }
+      ]
+    },
+    {
+      "id": "session_01YasQdkuNpbcPLu3eYZVdaX",
+      "title": "Android build release process",
+      "started": "2026-10-11T18:40:59Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T18:42:36Z",
+          "text": "Main is now our primary branch. Create releases for the android build when something is merged. Create builds on pr but not a release. Don't create builds for branches that aren't main or on a pr"
+        }
+      ]
+    },
+    {
+      "id": "session_01UvFRPQfJLr6agj3yY97n59",
+      "title": "GitHub page for drawing app",
+      "started": "2026-10-11T18:52:30Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T18:52:30Z",
+          "text": "Create a github page for this application. Give it s cover page that explains that it's a coloring book and free form drawing app with images from the church of Jesus Christ (link to where we got the imaged). Explain that I made it because I didn't like having to manually click to clear each page in the official app, that my kid's wanted their own pages and to not have fights about drawing over each other's work, and that they wanted to draw their own pictures. \n\nShow example images. Link to the release page on github. \n\nInclude a privacy policy (we don't track anything, everything is local), and anything else we will need to publish to android and ios"
+        },
+        {
+          "ts": "2026-10-11T22:09:39Z",
+          "text": "Merged, but the Orlando isn't working. What's missing?"
+        }
+      ]
+    },
+    {
+      "id": "session_012cCrZCjssKeA44A5rvaytN",
+      "title": "APK build performance",
+      "started": "2026-10-11T19:01:42Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T19:02:31Z",
+          "text": "The build time for the most recent apk is 13 minutes and counting. How can we speed up builds?"
+        },
+        {
+          "ts": "2026-10-11T19:05:13Z",
+          "text": "Make the changes and pr to main"
+        }
+      ]
+    },
+    {
+      "id": "session_01RCSJZCYGp29RXgGtQTuFLB",
+      "title": "Android app scrolling issues",
+      "started": "2026-10-11T22:43:46Z",
+      "prompts": [
+        {
+          "ts": "2026-10-11T22:45:36Z",
+          "text": "The android app gets jumpy when scrolling through the pages list. Thumbnails also aren't showing up after 20 or so, so long collections lose them"
+        }
+      ]
+    },
+    {
+      "id": "session_014LZosevxd3upugH3gCK1iU",
+      "title": "PIN setup keyboard issue",
+      "started": "2026-10-12T00:03:05Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T00:03:23Z",
+          "text": "I can't set the PIN. The keyboard doesn't appear."
+        }
+      ]
+    },
+    {
+      "id": "session_01QiwHXZaEzPv9XEMxmQNep7",
+      "title": "Coloring books asset management",
+      "started": "2026-10-12T00:03:33Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T00:07:47Z",
+          "text": "I'd like to move the actual assets for the books out of the application, and make them an optional download from the website. \n\nPackage them into a zip file with multiple books. \n\nCreate a basic set of animal coloring pages that are loaded by default. \n\nThen add an ability from the main page to import additional coloring books -- let them choose to upload their own zip,  or choose to get ones from my web page, which will currently just be the one set. \n\nTry to make it easy for users to see what i have on the site. Also make it so that as I update the website, the app will automatically pick it up."
+        },
+        {
+          "ts": "2026-10-12T00:35:18Z",
+          "text": "Can we update the build pipeline so that it only builds the app if the app code has changed,  and doesn't of only the website has changed?"
+        },
+        {
+          "ts": "2026-10-12T00:37:06Z",
+          "text": "Add light dark mode toggle to the website and the app. Default to current phone settings"
+        },
+        {
+          "ts": "2026-10-12T02:22:19Z",
+          "text": "It says it doesn't have internet access. Does it need to request a permission?\n\nLight dark mode doesn't work on the website"
+        },
+        {
+          "ts": "2026-10-12T02:28:45Z",
+          "text": "Yes"
+        }
+      ]
+    },
+    {
+      "id": "session_01NPg2Aj6ZoMZgBYQfZ7LDvW",
+      "title": "Website screenshots and harness",
+      "started": "2026-10-12T02:43:21Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T02:44:52Z",
+          "text": "Update the website to use full screenshots showing the crayons/etc. Save the harness so I can reuse it for appstore images in the future."
+        }
+      ]
+    },
+    {
+      "id": "session_01EiEUAQyRwpXvpMgLJsr1G6",
+      "title": "Pinch zoom coloring pages",
+      "started": "2026-10-12T02:57:32Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T02:59:01Z",
+          "text": "Make it optionally possible to use pinch to zoom on coloring pages. Make this a configurable setting at the user level, edited from the user page."
+        },
+        {
+          "ts": "2026-10-12T10:16:37Z",
+          "text": "Yes"
+        },
+        {
+          "ts": "2026-10-12T10:19:21Z",
+          "text": "Merge main, then typecheck again, then pr"
+        }
+      ]
+    },
+    {
+      "id": "session_01NX4DGiKjiDYJoSgN6ti9Nx",
+      "title": "Web page text rewrite",
+      "started": "2026-10-12T02:59:08Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T02:59:46Z",
+          "text": "I want to rewrite the text of the web page in my own words. Create a markdown file with the current text that I can edit and send back"
+        },
+        {
+          "ts": "2026-10-12T03:10:24Z",
+          "text": "Yes"
+        }
+      ]
+    },
+    {
+      "id": "session_01MT75Dn2JYAmVcNWF3oSxJb",
+      "title": "Signing key hardcoding",
+      "started": "2026-10-12T10:20:33Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T10:20:43Z",
+          "text": "Is the signing key hardcoded?"
+        },
+        {
+          "ts": "2026-10-12T10:22:39Z",
+          "text": "Set it up with a GitHub Actions secret. Fallback to the current arrangement if not set"
+        }
+      ]
+    },
+    {
+      "id": "session_01Ty5MBPFPJVTPoVjPFik3wm",
+      "title": "Slopware warning page",
+      "started": "2026-10-12T16:27:19Z",
+      "prompts": [
+        {
+          "ts": "2026-10-12T16:27:19Z",
+          "text": "Add a 'Slopware' warning to the web page, noting that this is fully built using AI (Claude code), and provide a link to a list of all of my prompts to from this repo, grouped by conversation.\n\nAdd an agents.md to automatically update the list with every prompt."
+        }
+      ]
+    }
+  ]
+}

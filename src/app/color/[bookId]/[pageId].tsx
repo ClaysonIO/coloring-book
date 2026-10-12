@@ -18,7 +18,8 @@ import type { FillOp, Op, StrokeOp, Tool } from '../../../drawing/types';
 import { useLibrary } from '../../../state/LibraryContext';
 import { useUsers } from '../../../state/UsersContext';
 import * as storage from '../../../state/storage';
-import { colors } from '../../../theme';
+import { useTheme, useThemedStyles } from '../../../state/ThemeContext';
+import type { Colors } from '../../../theme';
 
 const THUMB_MAX = 480;
 const THUMB_DELAY_MS = 800;
@@ -59,6 +60,8 @@ function blankSizeFor(area: { width: number; height: number }) {
 }
 
 function Colorer({ userId, bookId, pageId, page }: { userId: string; bookId: string; pageId: string; page: Page }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const window = useWindowDimensions();
   const landscape = window.width > window.height;
@@ -278,44 +281,45 @@ function Colorer({ userId, bookId, pageId, page }: { userId: string; bookId: str
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0E0E0E' },
-  row: { flexDirection: 'row' },
-  sideBar: { backgroundColor: colors.background, paddingRight: 4 },
-  toolbarVertical: {
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: colors.surface,
-    paddingLeft: 6,
-  },
-  dividerH: { height: 1, width: 36, backgroundColor: colors.outline },
-  canvasArea: { flex: 1, padding: 12, justifyContent: 'center' },
-  toolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: colors.surface,
-    paddingTop: 10,
-  },
-  divider: { width: 1, height: 36, backgroundColor: colors.outline },
-  toolButton: {
-    width: 64,
-    height: 52,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: colors.textMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  toolCorner: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 0,
-    height: 0,
-    borderTopWidth: 18,
-    borderRightWidth: 18,
-    borderRightColor: 'transparent',
-  },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.canvasBackdrop },
+    row: { flexDirection: 'row' },
+    sideBar: { backgroundColor: colors.background, paddingRight: 4 },
+    toolbarVertical: {
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      backgroundColor: colors.surface,
+      paddingLeft: 6,
+    },
+    dividerH: { height: 1, width: 36, backgroundColor: colors.outline },
+    canvasArea: { flex: 1, padding: 12, justifyContent: 'center' },
+    toolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      backgroundColor: colors.surface,
+      paddingTop: 10,
+    },
+    divider: { width: 1, height: 36, backgroundColor: colors.outline },
+    toolButton: {
+      width: 64,
+      height: 52,
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: colors.textMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    toolCorner: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: 0,
+      height: 0,
+      borderTopWidth: 18,
+      borderRightWidth: 18,
+      borderRightColor: 'transparent',
+    },
+  });

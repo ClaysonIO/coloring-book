@@ -13,9 +13,10 @@ import { AddTile, Tile } from '../../components/Tile';
 import { useLibrary } from '../../state/LibraryContext';
 import { useUsers } from '../../state/UsersContext';
 import * as storage from '../../state/storage';
-import { colors } from '../../theme';
+import { useTheme } from '../../state/ThemeContext';
 
 export default function BookScreen() {
+  const { colors } = useTheme();
   const { bookId, edit } = useLocalSearchParams<{ bookId: string; edit?: string }>();
   const { currentUser, bumpRevision } = useUsers();
   const { getBook, addPages, addSketchPage, removePage, renamePage } = useLibrary();

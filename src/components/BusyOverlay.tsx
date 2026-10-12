@@ -1,8 +1,11 @@
 import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
 
-import { ALL_ORIENTATIONS, colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import { ALL_ORIENTATIONS, type Colors } from '../theme';
 
 export function BusyOverlay({ message }: { message: string | null }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Modal
       supportedOrientations={ALL_ORIENTATIONS}
@@ -20,8 +23,9 @@ export function BusyOverlay({ message }: { message: string | null }) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
-  box: { backgroundColor: colors.surface, borderRadius: 20, padding: 28, alignItems: 'center', gap: 16, minWidth: 220 },
-  text: { color: colors.text, fontSize: 17 },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' },
+    box: { backgroundColor: colors.surface, borderRadius: 20, padding: 28, alignItems: 'center', gap: 16, minWidth: 220 },
+    text: { color: colors.text, fontSize: 17 },
+  });

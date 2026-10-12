@@ -13,7 +13,8 @@ import { usePinGate } from '../components/PinPrompt';
 import { packUrl, type CatalogBook, type CatalogPack } from '../content/catalog';
 import { useLibrary } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
-import { colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import type { Colors } from '../theme';
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const megabytes = (bytes: number) => `${Math.max(1, Math.round(bytes / 1e6))} MB`;
@@ -24,6 +25,8 @@ const megabytes = (bytes: number) => `${Math.max(1, Math.round(bytes / 1e6))} MB
  * would want a parental gate in front of one).
  */
 export default function GetBooksScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { currentUser } = useUsers();
   const { catalog, catalogState, refreshCatalog, markPacksSeen, installPack, importZip, installedPacks, removePack, updatingPacks } =
     useLibrary();
@@ -192,6 +195,8 @@ function PackCard({
   onRestore: () => void;
   onRemove: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [open, setOpen] = useState<CatalogBook | null>(null);
   const pages = pack.books.reduce((n, b) => n + b.pages.length, 0);
   return (
@@ -268,6 +273,8 @@ function Button({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable
       onPress={onPress}
@@ -280,40 +287,41 @@ function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { paddingHorizontal: 16, gap: 14 },
-  section: { color: colors.accent, fontSize: 15, fontWeight: '600', marginTop: 8, marginLeft: 4 },
-  card: { backgroundColor: colors.surface, borderRadius: 22, padding: 18, gap: 10 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  cardTitle: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  body: { color: colors.textMuted, fontSize: 16, lineHeight: 22 },
-  meta: { color: colors.text, fontSize: 15 },
-  strip: { gap: 12, paddingVertical: 4 },
-  book: { width: 116, borderRadius: 14, padding: 4 },
-  bookOpen: { backgroundColor: colors.surfaceHigh },
-  cover: { width: 108, aspectRatio: 3 / 4, borderRadius: 10, backgroundColor: 'white' },
-  bookTitle: { color: colors.text, fontSize: 15, fontWeight: '500', marginTop: 6 },
-  bookMeta: { color: colors.textMuted, fontSize: 13 },
-  page: { width: 96 },
-  pageImage: { width: 96, height: 96, borderRadius: 8, backgroundColor: 'white' },
-  pageTitle: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
-  actions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 8,
-    backgroundColor: colors.accentContainer,
-    borderRadius: 24,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-  },
-  buttonText: { color: colors.onAccentContainer, fontSize: 17, fontWeight: '600' },
-  installed: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12 },
-  installedText: { color: colors.text, fontSize: 17 },
-  danger: { color: colors.danger, fontSize: 16, fontWeight: '600' },
-  link: { color: colors.accent, fontSize: 16, fontWeight: '600' },
-  notice: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 16, padding: 14 },
-  noticeText: { color: colors.textMuted, fontSize: 15, flex: 1 },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { paddingHorizontal: 16, gap: 14 },
+    section: { color: colors.accent, fontSize: 15, fontWeight: '600', marginTop: 8, marginLeft: 4 },
+    card: { backgroundColor: colors.surface, borderRadius: 22, padding: 18, gap: 10 },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+    cardTitle: { color: colors.text, fontSize: 22, fontWeight: '700' },
+    body: { color: colors.textMuted, fontSize: 16, lineHeight: 22 },
+    meta: { color: colors.text, fontSize: 15 },
+    strip: { gap: 12, paddingVertical: 4 },
+    book: { width: 116, borderRadius: 14, padding: 4 },
+    bookOpen: { backgroundColor: colors.surfaceHigh },
+    cover: { width: 108, aspectRatio: 3 / 4, borderRadius: 10, backgroundColor: 'white' },
+    bookTitle: { color: colors.text, fontSize: 15, fontWeight: '500', marginTop: 6 },
+    bookMeta: { color: colors.textMuted, fontSize: 13 },
+    page: { width: 96 },
+    pageImage: { width: 96, height: 96, borderRadius: 8, backgroundColor: 'white' },
+    pageTitle: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+    actions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 8,
+      backgroundColor: colors.accentContainer,
+      borderRadius: 24,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
+    },
+    buttonText: { color: colors.onAccentContainer, fontSize: 17, fontWeight: '600' },
+    installed: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12 },
+    installedText: { color: colors.text, fontSize: 17 },
+    danger: { color: colors.danger, fontSize: 16, fontWeight: '600' },
+    link: { color: colors.accent, fontSize: 16, fontWeight: '600' },
+    notice: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.surface, borderRadius: 16, padding: 14 },
+    noticeText: { color: colors.textMuted, fontSize: 15, flex: 1 },
+  });

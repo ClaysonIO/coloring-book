@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { ALL_ORIENTATIONS, colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import { ALL_ORIENTATIONS, type Colors } from '../theme';
 
 type Props = {
   visible: boolean;
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export function NamePrompt({ visible, title, initialValue = '', confirmLabel, onCancel, onConfirm, children }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [value, setValue] = useState(initialValue);
   useEffect(() => {
     if (visible) setValue(initialValue);
@@ -58,20 +61,21 @@ export function NamePrompt({ visible, title, initialValue = '', confirmLabel, on
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
-  dialog: { backgroundColor: colors.surface, borderRadius: 28, padding: 24, maxWidth: 480, width: '100%', alignSelf: 'center' },
-  title: { color: colors.text, fontSize: 22, fontWeight: '600', marginBottom: 16 },
-  input: {
-    color: colors.text,
-    fontSize: 20,
-    borderWidth: 1,
-    borderColor: colors.outline,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 28, marginTop: 28 },
-  cancel: { color: colors.textMuted, fontSize: 17 },
-  ok: { color: colors.accent, fontSize: 17, fontWeight: '600' },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
+    dialog: { backgroundColor: colors.surface, borderRadius: 28, padding: 24, maxWidth: 480, width: '100%', alignSelf: 'center' },
+    title: { color: colors.text, fontSize: 22, fontWeight: '600', marginBottom: 16 },
+    input: {
+      color: colors.text,
+      fontSize: 20,
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+    },
+    actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 28, marginTop: 28 },
+    cancel: { color: colors.textMuted, fontSize: 17 },
+    ok: { color: colors.accent, fontSize: 17, fontWeight: '600' },
+  });

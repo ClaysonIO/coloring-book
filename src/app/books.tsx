@@ -11,9 +11,12 @@ import { usePinGate } from '../components/PinPrompt';
 import { AddTile, Tile } from '../components/Tile';
 import { useLibrary, type PickedImage } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
-import { colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import type { Colors } from '../theme';
 
 export default function BooksScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { currentUser } = useUsers();
   const { books, createBook, removeBook, renameBook, newPackCount } = useLibrary();
   const [editing, setEditing] = useState(false);
@@ -136,7 +139,8 @@ export default function BooksScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  coverButton: { marginTop: 16, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.outline, alignItems: 'center' },
-  coverText: { color: colors.accent, fontSize: 16 },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    coverButton: { marginTop: 16, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.outline, alignItems: 'center' },
+    coverText: { color: colors.accent, fontSize: 16 },
+  });

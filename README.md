@@ -20,7 +20,11 @@ are free downloads from the website, and everything works offline once downloade
   The first time a page is opened, it's sized to fill all the space available for the page in the current
   orientation: landscape pages when opened in landscape, portrait when opened in portrait. After that its
   size is fixed, so the drawing never stretches.
-- **Books → pages → coloring**, in a dark UI.
+- **Books → pages → coloring.**
+- **Light and dark mode.** Follows the device by default; Settings → Appearance can pick Light or Dark for the
+  whole device (saved in `<documents>/coloring/settings.json`). Colors live in `src/theme.ts`; components get
+  them from `useTheme()` and `useThemedStyles()` in `src/state/ThemeContext.tsx`. The website has a matching
+  toggle in its header (`docs/theme.js`), which follows the browser until someone picks the other theme.
 - **More books.** The last tile on the books screen (and the books button in its header) opens **More Books**,
   which lists every book pack on the website with covers and page previews. **Download** adds a pack; packs
   already installed update by themselves when the website changes (see [Book packs](#book-packs-website-downloads)).

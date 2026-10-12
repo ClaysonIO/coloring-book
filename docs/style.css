@@ -12,8 +12,23 @@
   --max: 1080px;
 }
 
+/* Dark colors: the device's setting, unless the header toggle picked one (theme.js sets data-theme). */
+:root { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --surface-alt: #2a2a2a;
+  --text: #ececec;
+  --muted: #b5b5b5;
+  --accent: #ffb59a;
+  --accent-soft: #3b1a0e;
+  --border: #333;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #121212;
     --surface: #1e1e1e;
     --surface-alt: #2a2a2a;
@@ -54,6 +69,18 @@ img { max-width: 100%; height: auto; display: block; }
 .site-header nav { display: flex; gap: 18px; flex-wrap: wrap; }
 .site-header nav a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 16px; }
 .site-header nav a:hover, .site-header nav a[aria-current="page"] { color: var(--accent); }
+.header-end { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 2px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; }
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 20px; height: 20px; }
+/* Shows the theme you'd switch to. */
+.theme-toggle .sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun { display: block; }
+  :root:not([data-theme="light"]) .theme-toggle .moon { display: none; }
+}
 
 /* Hero */
 .hero { padding: 40px 0 56px; }
@@ -64,7 +91,8 @@ h1 { font-size: clamp(36px, 6vw, 58px); line-height: 1.08; margin: 16px 0; lette
 .buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; border-radius: 999px; font-weight: 800; text-decoration: none; font-size: 17px; }
 .btn-primary { background: var(--accent); color: #fff; }
-@media (prefers-color-scheme: dark) { .btn-primary { color: #3b1a0e; } }
+:root[data-theme="dark"] .btn-primary { color: #3b1a0e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-primary { color: #3b1a0e; } }
 .btn-secondary { background: var(--surface); color: var(--text); border: 2px solid var(--border); }
 .btn:hover { transform: translateY(-1px); }
 .hero-art { position: relative; min-height: 380px; }

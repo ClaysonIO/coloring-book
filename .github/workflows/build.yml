@@ -5,10 +5,10 @@ name: Build
 on:
   push:
     branches: [main]
-    # Website-only changes don't need a new build or release.
-    paths-ignore: ['docs/**', '.github/workflows/pages.yml']
+    # Website-only changes (including the downloadable book packs) don't need a new build or release.
+    paths-ignore: ['docs/**', 'BookPacks/**', 'scripts/build-packs.mjs', '.github/workflows/pages.yml']
   pull_request:
-    paths-ignore: ['docs/**', '.github/workflows/pages.yml']
+    paths-ignore: ['docs/**', 'BookPacks/**', 'scripts/build-packs.mjs', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 concurrency:

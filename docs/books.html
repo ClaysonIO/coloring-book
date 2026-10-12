@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Books · Coloring Book</title>
+  <meta name="description" content="Free coloring books you can download into the Coloring Book app.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="images/icon.png" alt="">Coloring Book</a>
+      <nav>
+        <a href="./">Home</a>
+        <a href="books.html" aria-current="page">Books</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap books-page">
+    <h1>Coloring books</h1>
+    <p class="section-intro">
+      The app comes with a book of animals. Every book on this page is free to add: in the app, tap
+      <strong>More books</strong> on the Coloring Books screen and then <strong>Download</strong>. New books show up
+      there as soon as they're added here, and books you already have update by themselves.
+    </p>
+    <p class="section-intro">
+      You can also download a zip file below and add it with <strong>More books → Choose a zip file</strong>, or
+      make your own: put pictures in a zip, one folder per book.
+    </p>
+
+    <div id="packs"><p class="caption">Loading the books…</p></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Coloring pages in the Church Coloring Pages pack are © Intellectual Reserve, Inc. Not affiliated with The Church of Jesus Christ of Latter-day Saints.</p>
+      <nav>
+        <a href="./">Home</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="https://github.com/ClaysonIO/coloring-book">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // packs/index.json is built from BookPacks/ by scripts/build-packs.mjs; the app reads the same file.
+    const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    const el = (tag, props = {}, ...children) => {
+      const node = Object.assign(document.createElement(tag), props);
+      node.append(...children);
+      return node;
+    };
+
+    function renderPack(pack) {
+      const pages = pack.books.reduce((n, b) => n + b.pages.length, 0);
+      const size = `${Math.max(1, Math.round(pack.size / 1e6))} MB`;
+      const preview = el('div', { className: 'page-strip', hidden: true });
+
+      const books = pack.books.map((book) => {
+        const button = el(
+          'button',
+          { className: 'book', type: 'button', title: `Show the pages in ${book.title}` },
+          el('img', { src: `packs/${book.cover}`, alt: '', loading: 'lazy' }),
+          el('strong', {}, book.title),
+          el('span', {}, plural(book.pages.length, 'page')),
+        );
+        button.addEventListener('click', () => {
+          const open = button.getAttribute('aria-pressed') === 'true';
+          for (const b of button.parentElement.children) b.setAttribute('aria-pressed', 'false');
+          preview.hidden = open;
+          if (open) return;
+          button.setAttribute('aria-pressed', 'true');
+          preview.replaceChildren(
+            el('h3', {}, book.title),
+            el('div', { className: 'gallery' }, ...book.pages.map((p) =>
+              el('figure', {}, el('img', { src: `packs/${p.thumb}`, alt: p.title, loading: 'lazy' }), el('figcaption', {}, p.title)))),
+          );
+        });
+        return button;
+      });
+
+      return el(
+        'section',
+        { className: 'card pack' },
+        el('h2', {}, pack.title),
+        el('p', {}, pack.description),
+        el('p', { className: 'pack-meta' }, `${plural(pack.books.length, 'book')} · ${plural(pages, 'page')} · ${size}`),
+        el('div', { className: 'book-row' }, ...books),
+        preview,
+        el('div', { className: 'buttons' }, el('a', { className: 'btn btn-secondary', href: `packs/${pack.zip}`, download: `${pack.id}.zip` }, `Download zip (${size})`)),
+      );
+    }
+
+    fetch('packs/index.json', { cache: 'no-cache' })
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((catalog) => document.getElementById('packs').replaceChildren(...catalog.packs.map(renderPack)))
+      .catch(() => {
+        document.getElementById('packs').replaceChildren(el('p', { className: 'caption' }, "The list of books couldn't be loaded. Try again in a moment."));
+      });
+  </script>
+</body>
+</html>

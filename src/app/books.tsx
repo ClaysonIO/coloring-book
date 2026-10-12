@@ -15,7 +15,7 @@ import { colors } from '../theme';
 
 export default function BooksScreen() {
   const { currentUser } = useUsers();
-  const { books, createBook, removeBook, renameBook } = useLibrary();
+  const { books, createBook, removeBook, renameBook, newPackCount } = useLibrary();
   const [editing, setEditing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [cover, setCover] = useState<PickedImage | null>(null);
@@ -64,6 +64,7 @@ export default function BooksScreen() {
               onPress={() => setEditing(!editing)}
               color={editing ? colors.accent : colors.text}
             />
+            <IconButton icon="book-plus-multiple" label="More books" onPress={() => router.push('/get-books')} />
             <IconButton icon="cog" label="Settings" onPress={() => router.push('/settings')} />
           </>
         }
@@ -82,7 +83,19 @@ export default function BooksScreen() {
             onRemove={editing && !book.sketchbook ? () => remove(book.id, book.title) : undefined}
           />
         )}
-        trailing={editing ? <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} /> : undefined}
+        trailing={
+          editing ? (
+            <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} />
+          ) : (
+            <AddTile
+              label="More books"
+              icon="book-plus-multiple"
+              badge={newPackCount}
+              aspectRatio={3 / 4}
+              onPress={() => router.push('/get-books')}
+            />
+          )
+        }
       />
 
       <NamePrompt

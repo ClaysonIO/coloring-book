@@ -21,7 +21,9 @@ One-time setup: in the repo on GitHub, open **Settings → Pages** and set **Sou
       Google Play's intellectual property policy). Check the
       [terms of use](https://www.churchofjesuschrist.org/legal/terms-of-use?lang=eng) and ask the Church's
       Intellectual Property Office for permission to distribute the pages in an app. Keep the reply, since Apple may
-      ask for it. If permission isn't granted, ship without the `church-*` books in `ColoringPages/`.
+      ask for it. The app itself now ships only the animal book; the Church pages are a download from the website
+      (`BookPacks/church/`), but offering them in the app still counts. If permission isn't granted, delete
+      `BookPacks/church/` (or move it out of `BookPacks/`) and the Website workflow stops publishing it.
 - [ ] Release signing. The CI APK is signed with the debug key and can't go to Google Play. Build store binaries
       with EAS: `npx eas-cli@latest build --platform all --profile production`, then
       `npx eas-cli@latest submit`.
@@ -43,8 +45,8 @@ One-time setup: in the repo on GitHub, open **Settings → Pages** and set **Sou
 
 > A coloring book and sketchbook for every kid in the house.
 >
-> Color more than 190 pages from The Church of Jesus Christ of Latter-day Saints, or draw your own pictures on
-> blank pages. Each child picks their name when the app opens and gets their own copy of every page, so nobody
+> Start with a book of animals, download more than 190 pages from The Church of Jesus Christ of Latter-day
+> Saints, or draw your own pictures on blank pages. Each child picks their name when the app opens and gets their own copy of every page, so nobody
 > colors over anyone else's work.
 >
 > • Separate pages for each child, with an optional PIN to prevent accidental resets
@@ -53,8 +55,9 @@ One-time setup: in the repo on GitHub, open **Settings → Pages** and set **Sou
 > • Fill bucket, crayon, marker, paintbrush, pencil, highlighter, spray and eraser
 > • About 75 crayon colors, plus undo and redo
 > • Colors never cover the lines
-> • Turn your own photos into coloring pages and make your own books
-> • Works offline, in portrait or landscape, on phones and tablets
+> • Free coloring books to download, with new ones added over time
+> • Turn your own photos into coloring pages, make your own books, or add a zip of them
+> • Works offline once books are downloaded, in portrait or landscape, on phones and tablets
 >
 > Free, with no ads, no in-app purchases, no accounts and no tracking. Everything stays on your device.
 >
@@ -63,13 +66,16 @@ One-time setup: in the repo on GitHub, open **Settings → Pages** and set **Sou
 
 ## Privacy answers
 
-The app makes no network requests and has no analytics, ads or crash reporting.
+The app has no analytics, ads or crash reporting. Its only network requests are plain file downloads from the
+website on GitHub Pages: the pack list (`packs/index.json`), preview thumbnails, and the zips the user chooses.
+No user data or identifiers are sent, so nothing counts as collected.
 
 **App Store → App Privacy:** choose **Data Not Collected**.
 
 **Google Play → Data safety:**
 - Does your app collect or share any of the required user data types? **No**
-- Is all user data encrypted in transit? Not applicable (no data is transmitted). Answer **Yes** if a value is required.
+- Is all user data encrypted in transit? Not applicable (no user data is transmitted; downloads use HTTPS).
+  Answer **Yes** if a value is required.
 - Do you provide a way for users to request that their data is deleted? Not applicable: there are no accounts. Data
   is deleted in the app or by uninstalling.
 
@@ -88,7 +94,8 @@ won't ask about encryption on each upload.
 access, user-generated content sharing, and gambling. Result: **4+**.
 
 - Kids Category: optional. If you choose it (ages 5 and under or 6–8), Apple requires no third-party analytics or
-  ads and a parental gate before links out of the app. The app already meets both, since it has no links out.
+  ads and a parental gate before links out of the app. The app already meets both, since it has no links out
+  (the More Books screen shows the website's books in the app instead of linking to it).
 
 **Google Play → Content rating (IARC):** category **Reference, News, or Educational** (or **All other app types**).
 Answer **No** to violence, sexuality, language, controlled substances, gambling, user interaction, sharing of

@@ -13,7 +13,7 @@ export type Page = {
    * opened and sized to fill the screen in its current orientation.
    */
   blank?: { width: number; height: number } | null;
-  /** Added in the app (can be renamed), as opposed to bundled from ColoringPages/. */
+  /** Added in the app (can be renamed), as opposed to bundled from ColoringPages/ or from a pack. */
   custom?: boolean;
 };
 
@@ -24,6 +24,8 @@ export type Book = {
   cover?: ImageRef;
   pages: Page[];
   custom?: boolean;
+  /** Id of the book pack (zip) this book came from. */
+  pack?: string;
   /** The per-user blank-page book: can't be removed, pages are added blank. */
   sketchbook?: boolean;
 };
@@ -34,7 +36,8 @@ export const SKETCHBOOK_COVER: number = require('../../assets/sketchbook/cover.p
 /**
  * The bundled library, generated from ColoringPages/ by scripts/build-content.mjs
  * (see the README). Ids are storage keys for saved coloring, so keep folder and
- * file names stable once people have started coloring. Books and pages added in
- * the app are merged in by LibraryContext.
+ * file names stable once people have started coloring. Book packs (downloaded from
+ * the website or imported from a zip) and books and pages added in the app are
+ * merged in by LibraryContext.
  */
 export const bundledBooks: Book[] = generatedBooks;

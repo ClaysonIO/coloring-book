@@ -1,10 +1,18 @@
 name: Website
 
-# Publishes docs/ (the app's website, privacy policy and support page) to GitHub Pages.
+# Publishes docs/ (the app's website, privacy policy and support page) to GitHub Pages, along with
+# the downloadable book packs built from BookPacks/ into docs/packs/. The app reads docs/packs/index.json,
+# so a change to BookPacks/ reaches everyone's app as soon as this deploys; no app release needed.
 on:
   push:
     branches: [main]
-    paths: ['docs/**', '.github/workflows/pages.yml']
+    paths:
+      - 'docs/**'
+      - 'BookPacks/**'
+      - 'ColoringPages/**' # pack book ids must not clash with the bundled books
+      - 'scripts/build-packs.mjs'
+      - 'scripts/content-lib.mjs'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +33,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Only the build tools are needed (sharp, mupdf, fflate), so skip the app's postinstall.
+      - run: npm ci --ignore-scripts
+      - name: Build book packs
+        run: npm run packs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

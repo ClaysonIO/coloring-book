@@ -1,7 +1,8 @@
 # Coloring Book
 
-A simple, fully offline coloring app for Android, iPhone and iPad, built with Expo (React Native) and
-[React Native Skia](https://shopify.github.io/react-native-skia/).
+A simple coloring app for Android, iPhone and iPad, built with Expo (React Native) and
+[React Native Skia](https://shopify.github.io/react-native-skia/). It ships with one book of animals; more books
+are free downloads from the website, and everything works offline once downloaded.
 
 **Website:** https://claysonio.github.io/coloring-book/ ([privacy policy](https://claysonio.github.io/coloring-book/privacy.html),
 [support](https://claysonio.github.io/coloring-book/support.html)). Its source is in `docs/`, and
@@ -20,6 +21,11 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
   orientation: landscape pages when opened in landscape, portrait when opened in portrait. After that its
   size is fixed, so the drawing never stretches.
 - **Books → pages → coloring**, in a dark UI.
+- **More books.** The last tile on the books screen (and the books button in its header) opens **More Books**,
+  which lists every book pack on the website with covers and page previews. **Download** adds a pack; packs
+  already installed update by themselves when the website changes (see [Book packs](#book-packs-website-downloads)).
+  The same screen imports a zip file of your own. The tile shows a badge when the website has packs the user
+  hasn't seen yet.
 - **No zoom.** The page always fits the screen, so every touch colors.
 - **Landscape layout.** In landscape the back button, the crayons (in a column pointing at the page)
   and the tool buttons move to the left and right sides, so the page gets the full height.
@@ -28,7 +34,8 @@ A simple, fully offline coloring app for Android, iPhone and iPad, built with Ex
   - **Add pages:** pick many images at once from Photos or Files.
   - **Rename:** long-press a book or page added in the app.
   - **Remove:** tap the red ✕ on a book or page. Removing one also deletes everyone's coloring on it.
-    Built-in books and pages are only hidden, and Settings can bring them back.
+    Built-in books and pages are only hidden, and Settings can bring them back. A book from a pack is deleted,
+    and stays gone when the pack updates; **More Books** can get it back.
   - Images added in the app are stored on the device as PNGs (max 2048 px). PDFs can't be added
     in the app; put them in `ColoringPages/` instead.
 - **Each page is a layer over the base image.** The line art is multiplied on top of the color layer,
@@ -67,7 +74,14 @@ Installing on a real iPhone/iPad, or publishing to the stores, requires signing.
 
 ## Adding artwork
 
-All books live in `ColoringPages/`. Each sub-folder is one book:
+There are two kinds of books:
+
+- **Bundled** books live in `ColoringPages/` and ship inside the app. Keep this small: it's the animal book
+  people see on first launch.
+- **Book packs** live in `BookPacks/` and are published on the website for the app to download. See
+  [Book packs](#book-packs-website-downloads).
+
+Both use the same book folder layout. In `ColoringPages/`, each sub-folder is one book:
 
 ```
 ColoringPages/
@@ -112,14 +126,55 @@ wrong, such as a missing file, bad JSON or a PDF page that doesn't exist, it sto
 for PDF pages after the first). Renaming a folder or file after people have started coloring hides
 their saved coloring for it. To rename a file safely, add `"id": "<old file name>"` to that page.
 
+### Book packs (website downloads)
+
+A pack is a zip of several books. Each folder in `BookPacks/` is one pack, holding a `_pack.json` and book
+folders laid out exactly like `ColoringPages/`:
+
+```
+BookPacks/
+  church/
+    _pack.json                  { "title": "Church Coloring Pages", "description": "…" }
+    church-01-family-history/
+      _book.json
+      …
+```
+
+`npm run packs` (`scripts/build-packs.mjs`) builds them into `docs/packs/` (git-ignored):
+
+- `index.json`: the catalog. The app reads it from `https://claysonio.github.io/coloring-book/packs/index.json`
+  (`src/content/catalog.ts`), and so does the website's [books page](https://claysonio.github.io/coloring-book/books.html).
+- `<pack>-<version>.zip`: the pack. JPEGs up to 2048 px are copied as they are; everything else is converted
+  to PNG, so installing on a device is mostly copying files. Each book's `_book.json` inside lists page `id`s.
+- `<pack>/<book>/*.jpg`: cover and page thumbnails for the website and the app's **More Books** screen.
+
+The version is a hash of the pack's content, so it only changes when the pack does.
+
+**Publishing:** the **Website** workflow (`.github/workflows/pages.yml`) builds the packs and deploys them with
+`docs/` on every push to `main` that touches `BookPacks/` or `docs/`. No app release is needed:
+
+- A new pack appears in the app's **More Books** list (with a badge on the tile) the next time the app checks.
+- A changed pack updates itself in the background on devices that have it.
+- The app checks when it opens and when it comes back after 30 minutes or more.
+
+Book ids must be unique across every pack and `ColoringPages/` (the build checks), and stable: a pack book
+keeps its folder name as its id, so coloring is kept across updates. The church books keep the ids they had
+when they were bundled, so coloring done before this change comes back when the pack is downloaded.
+
+**Zips people make themselves** can be imported from **More Books → Choose a zip file**. Either use the layout
+above (`_book.json` per book folder, optionally a `_pack.json` with an `id` so re-importing replaces it), or just
+put pictures in it: every folder of pictures becomes a book named after the folder, and pictures at the top
+level make a book named after the zip. PNG, JPEG, GIF, WebP and HEIC work (decoded by the device); PDFs and SVGs
+don't, so convert them first or ship them in a pack.
+
 ### Church coloring pages
 
-The books in `ColoringPages/` are the coloring pages from the Church of Jesus Christ's
+The books in `BookPacks/church/` are the coloring pages from the Church of Jesus Christ's
 [Coloring Pages](https://www.churchofjesuschrist.org/media/collection/coloring-pages-images?lang=eng)
 collection, one book per grouping on that page (Family History, General, Christmas, Book of Mormon,
-Pearl of Great Price, General Conference). Re-download or update them with
-`node scripts/fetch-church-coloring-pages.mjs`, which skips files already present and rewrites each
-`_book.json`. The images are © by Intellectual Reserve, Inc. Check the site's terms of use before you
+Pearl of Great Price, General Conference). They're a download from the website, not part of the app.
+Re-download or update them with `node scripts/fetch-church-coloring-pages.mjs`, which skips files already
+present and rewrites each `_book.json`. The images are © by Intellectual Reserve, Inc. Check the site's terms of use before you
 distribute them.
 
 ## Storage
@@ -131,8 +186,9 @@ users.json
 users/<userId>/<bookId>/<pageId>.json   ordered list of strokes and fills (the color layer)
 users/<userId>/<bookId>/<pageId>.png    thumbnail shown in the page grid
 users/<userId>/sketchbook.json          the user's sketchbook page list
-library/library.json                    books and pages added in the app, and hidden built-ins
-library/images/<id>.png                 images added in the app
+library/library.json                    books and pages added in the app, installed packs, hidden built-ins
+library/images/<id>.png|jpg             images added in the app or from packs
+library/catalog.json                    the website's pack list, as last seen (for offline use)
 ```
 
 Strokes are saved in base-image pixels, and fills are saved as tap points that get recomputed on load.
@@ -143,10 +199,15 @@ matching file or folder.
 
 | Path | What |
 |---|---|
-| `ColoringPages/` | Book and page artwork plus `_book.json` (source of truth) |
+| `ColoringPages/` | Bundled books: artwork plus `_book.json` |
+| `BookPacks/` | Downloadable book packs published on the website |
 | `scripts/build-content.mjs` | Converts `ColoringPages/` into bundled PNGs and the generated book list |
-| `scripts/fetch-church-coloring-pages.mjs` | Downloads the Church coloring pages into `ColoringPages/church-*` |
-| `src/app/` | Screens (Expo Router): profiles, books, book pages, coloring, settings |
+| `scripts/build-packs.mjs` | Builds `BookPacks/` into zips, thumbnails and `docs/packs/index.json` |
+| `scripts/content-lib.mjs` | Book reading and image conversion shared by both build scripts |
+| `scripts/fetch-church-coloring-pages.mjs` | Downloads the Church coloring pages into `BookPacks/church/` |
+| `src/app/` | Screens (Expo Router): profiles, books, book pages, coloring, settings, more books |
+| `src/content/catalog.ts` | Website URLs and the pack catalog format |
+| `src/state/packs.ts` | Downloading and reading pack zips |
 | `src/drawing/ColoringCanvas.tsx` | Fit-to-screen canvas and touch handling |
 | `src/drawing/PageArtwork.tsx` | Draw order: paper, color layer, line art |
 | `src/drawing/brushes.tsx` | Brush definitions and rendering |

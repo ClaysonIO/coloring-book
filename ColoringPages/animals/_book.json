@@ -1,0 +1,14 @@
+{
+  "name": "Animals",
+  "cover": "cat.svg",
+  "pages": [
+    { "name": "Cat", "path": "cat.svg" },
+    { "name": "Bunny", "path": "bunny.svg" },
+    { "name": "Fish", "path": "fish.svg" },
+    { "name": "Owl", "path": "owl.svg" },
+    { "name": "Turtle", "path": "turtle.svg" },
+    { "name": "Butterfly", "path": "butterfly.svg" },
+    { "name": "Elephant", "path": "elephant.svg" },
+    { "name": "Snail", "path": "snail.svg" }
+  ]
+}

@@ -50,13 +50,30 @@ export function Tile({ title, image, aspectRatio, paper, onPress, onLongPress, o
   );
 }
 
-/** Dashed "add" tile shown at the end of a grid in edit mode. */
-export function AddTile({ label, aspectRatio, onPress }: { label: string; aspectRatio: number; onPress: () => void }) {
+/** Dashed "add" tile shown at the end of a grid, with an optional count badge. */
+export function AddTile({
+  label,
+  aspectRatio,
+  onPress,
+  icon = 'plus',
+  badge,
+}: {
+  label: string;
+  aspectRatio: number;
+  onPress: () => void;
+  icon?: keyof typeof MaterialCommunityIcons.glyphMap;
+  badge?: number;
+}) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]} accessibilityLabel={label}>
       <View style={[styles.art, styles.add, { aspectRatio }]}>
-        <MaterialCommunityIcons name="plus" size={56} color={colors.accent} />
+        <MaterialCommunityIcons name={icon} size={56} color={colors.accent} />
       </View>
+      {badge ? (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{badge}</Text>
+        </View>
+      ) : null}
       <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit>
         {label}
       </Text>
@@ -79,6 +96,21 @@ const styles = StyleSheet.create({
   },
   image: { width: '100%', height: '100%' },
   title: { color: colors.text, fontSize: 20, fontWeight: '500', textAlign: 'center', marginTop: 10, marginBottom: 4 },
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 36,
+    height: 36,
+    paddingHorizontal: 8,
+    borderRadius: 18,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  badgeText: { color: colors.onAccentContainer, fontSize: 17, fontWeight: '700' },
   remove: {
     position: 'absolute',
     top: 2,

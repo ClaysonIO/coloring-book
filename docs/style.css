@@ -95,11 +95,23 @@ h1 { font-size: clamp(36px, 6vw, 58px); line-height: 1.08; margin: 16px 0; lette
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-primary { color: #3b1a0e; } }
 .btn-secondary { background: var(--surface); color: var(--text); border: 2px solid var(--border); }
 .btn:hover { transform: translateY(-1px); }
-.hero-art { position: relative; min-height: 380px; }
-.hero-art img { position: absolute; border-radius: 12px; box-shadow: var(--shadow); background: #fff; }
-.hero-art .a { width: 58%; left: 0; top: 0; transform: rotate(-4deg); }
-.hero-art .b { width: 58%; right: 0; top: 40px; transform: rotate(5deg); }
-.hero-art .c { width: 62%; left: 18%; bottom: 0; transform: rotate(-1deg); }
+.hero-art { position: relative; display: flex; justify-content: center; padding: 8px 0 24px; }
+.hero-art .back { position: absolute; left: 4%; top: 36px; transform: rotate(-6deg); opacity: 0.95; }
+.hero-art .front { position: relative; left: 14%; transform: rotate(3deg); }
+
+/* App screenshots (made by screenshots/capture.mjs) in a simple device frame, light or dark to match the page. */
+.device { background: #111; border: 8px solid #1d1b1a; border-radius: 34px; overflow: hidden; box-shadow: var(--shadow); }
+.device img, .feature-media .device img { width: 100%; border-radius: 0; box-shadow: none; }
+.device.phone { width: 100%; max-width: 280px; }
+.device.tablet { border-width: 10px; border-radius: 26px; }
+.feature-media .device { margin: 0 auto; }
+.theme-dark { display: none; }
+:root[data-theme="dark"] .theme-light { display: none; }
+:root[data-theme="dark"] .theme-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-light { display: none; }
+  :root:not([data-theme="light"]) .theme-dark { display: block; }
+}
 
 /* Sections */
 section { padding: 56px 0; }
@@ -167,7 +179,7 @@ h3 { font-size: 21px; margin: 0 0 8px; }
 @media (max-width: 860px) {
   .hero .wrap, .feature-row { grid-template-columns: 1fr; gap: 32px; }
   .feature-row.flip .feature-media { order: 0; }
-  .hero-art { min-height: 0; aspect-ratio: 1 / 0.9; }
+  .hero-art .device.phone { max-width: 220px; }
   .story { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: repeat(2, 1fr); }
 }

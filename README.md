@@ -7,7 +7,8 @@ are free downloads from the website, and everything works offline once downloade
 **Website:** https://www.clayson.io/coloring-book/ ([privacy policy](https://www.clayson.io/coloring-book/privacy.html),
 [support](https://www.clayson.io/coloring-book/support.html)). Its source is in `docs/`, and
 `.github/workflows/pages.yml` publishes it. Store listing text and submission answers are in
-[STORE_LISTING.md](STORE_LISTING.md).
+[STORE_LISTING.md](STORE_LISTING.md). Screenshots for the website and the stores come from the real app:
+`npm run screenshots` (see [screenshots/README.md](screenshots/README.md)).
 
 ## Features
 

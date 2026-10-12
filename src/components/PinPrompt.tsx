@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { User } from '../state/storage';
-import { ALL_ORIENTATIONS, colors } from '../theme';
+import { useThemedStyles } from '../state/ThemeContext';
+import { ALL_ORIENTATIONS, type Colors } from '../theme';
 
 export const PIN_LENGTH = 4;
 
@@ -16,6 +17,7 @@ type Props = {
 
 /** Number-pad PIN entry that submits as soon as all digits are typed. */
 export function PinPrompt({ visible, title, onSubmit, onCancel }: Props) {
+  const styles = useThemedStyles(createStyles);
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const input = useRef<TextInput>(null);
@@ -111,23 +113,24 @@ export function usePinGate() {
   return { gate, pinPrompt };
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
-  dialog: {
-    backgroundColor: colors.surface,
-    borderRadius: 28,
-    padding: 24,
-    maxWidth: 400,
-    width: '100%',
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
-  title: { color: colors.text, fontSize: 20, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
-  dots: { flexDirection: 'row', gap: 18, paddingVertical: 8 },
-  dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.accent },
-  dotFilled: { backgroundColor: colors.accent },
-  error: { color: colors.danger, marginTop: 10, fontSize: 15 },
-  hiddenInput: { position: 'absolute', width: 1, height: 1, opacity: 0 },
-  cancelButton: { marginTop: 16 },
-  cancel: { color: colors.textMuted, fontSize: 17 },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
+    dialog: {
+      backgroundColor: colors.surface,
+      borderRadius: 28,
+      padding: 24,
+      maxWidth: 400,
+      width: '100%',
+      alignSelf: 'center',
+      alignItems: 'center',
+    },
+    title: { color: colors.text, fontSize: 20, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
+    dots: { flexDirection: 'row', gap: 18, paddingVertical: 8 },
+    dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.accent },
+    dotFilled: { backgroundColor: colors.accent },
+    error: { color: colors.danger, marginTop: 10, fontSize: 15 },
+    hiddenInput: { position: 'absolute', width: 1, height: 1, opacity: 0 },
+    cancelButton: { marginTop: 16 },
+    cancel: { color: colors.textMuted, fontSize: 17 },
+  });

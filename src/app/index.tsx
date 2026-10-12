@@ -9,9 +9,12 @@ import { usePinGate } from '../components/PinPrompt';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
 import type { User } from '../state/storage';
-import { ALL_ORIENTATIONS, avatarColors, colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import { ALL_ORIENTATIONS, avatarColors, type Colors } from '../theme';
 
 export default function ProfilesScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { users, selectUser, addUser, deleteUser, bumpRevision } = useUsers();
   const insets = useSafeAreaInsets();
   const [adding, setAdding] = useState(false);
@@ -101,6 +104,8 @@ function AddUserModal({
   onCancel: () => void;
   onSave: (name: string, color: string) => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [name, setName] = useState('');
   const [color, setColor] = useState(avatarColors[0]);
   const save = () => {
@@ -156,32 +161,33 @@ function AddUserModal({
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  heading: { color: colors.text, fontSize: 32, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
-  list: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 24, paddingHorizontal: 16 },
-  profile: { width: 120, alignItems: 'center' },
-  avatar: { width: 110, height: 110, borderRadius: 55, alignItems: 'center', justifyContent: 'center' },
-  addAvatar: { backgroundColor: colors.surfaceHigh },
-  initial: { fontSize: 48, fontWeight: '700', color: '#1B1B1B' },
-  name: { color: colors.text, fontSize: 18, marginTop: 8 },
-  hint: { color: colors.textMuted, textAlign: 'center', marginBottom: 32 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
-  dialog: { backgroundColor: colors.surface, borderRadius: 28, padding: 24, maxWidth: 480, width: '100%', alignSelf: 'center' },
-  dialogTitle: { color: colors.text, fontSize: 22, fontWeight: '600', marginBottom: 16 },
-  input: {
-    color: colors.text,
-    fontSize: 20,
-    borderWidth: 1,
-    borderColor: colors.outline,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 20 },
-  swatch: { width: 40, height: 40, borderRadius: 20 },
-  swatchActive: { borderWidth: 3, borderColor: colors.text },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 28, marginTop: 28 },
-  cancel: { color: colors.textMuted, fontSize: 17 },
-  ok: { color: colors.accent, fontSize: 17, fontWeight: '600' },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    heading: { color: colors.text, fontSize: 32, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
+    list: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 24, paddingHorizontal: 16 },
+    profile: { width: 120, alignItems: 'center' },
+    avatar: { width: 110, height: 110, borderRadius: 55, alignItems: 'center', justifyContent: 'center' },
+    addAvatar: { backgroundColor: colors.surfaceHigh },
+    initial: { fontSize: 48, fontWeight: '700', color: '#1B1B1B' },
+    name: { color: colors.text, fontSize: 18, marginTop: 8 },
+    hint: { color: colors.textMuted, textAlign: 'center', marginBottom: 32 },
+    modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
+    dialog: { backgroundColor: colors.surface, borderRadius: 28, padding: 24, maxWidth: 480, width: '100%', alignSelf: 'center' },
+    dialogTitle: { color: colors.text, fontSize: 22, fontWeight: '600', marginBottom: 16 },
+    input: {
+      color: colors.text,
+      fontSize: 20,
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+    },
+    swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 20 },
+    swatch: { width: 40, height: 40, borderRadius: 20 },
+    swatchActive: { borderWidth: 3, borderColor: colors.text },
+    actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 28, marginTop: 28 },
+    cancel: { color: colors.textMuted, fontSize: 17 },
+    ok: { color: colors.accent, fontSize: 17, fontWeight: '600' },
+  });

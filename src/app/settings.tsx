@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -9,12 +10,15 @@ import { PinPrompt, usePinGate } from '../components/PinPrompt';
 import { useLibrary } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
 import * as storage from '../state/storage';
-import { colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import type { Colors, ThemePreference } from '../theme';
 
 /** Two-step "choose, then repeat" flow for setting a PIN. */
 type PinSetup = { step: 'choose' } | { step: 'repeat'; first: string } | null;
 
 export default function SettingsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, preference, setPreference } = useTheme();
   const { currentUser, deleteUser, selectUser, setPin, bumpRevision } = useUsers();
   const { books, hasRemovedBuiltIns, restoreBuiltIns } = useLibrary();
   const insets = useSafeAreaInsets();
@@ -29,6 +33,27 @@ export default function SettingsScreen() {
     <View style={styles.screen}>
       <Header title="Settings" subtitle={name} onBack={() => router.back()} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
+        <Text style={styles.section}>Appearance</Text>
+        <Text style={styles.note}>For everyone on this device. Automatic follows the device's light or dark setting.</Text>
+        <View style={styles.segments} accessibilityRole="radiogroup">
+          {THEME_OPTIONS.map(({ value, label, icon }) => {
+            const active = preference === value;
+            return (
+              <Pressable
+                key={value}
+                onPress={() => setPreference(value)}
+                style={[styles.segment, active && styles.segmentActive]}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: active }}
+                accessibilityLabel={label}
+              >
+                <MaterialCommunityIcons name={icon} size={22} color={active ? colors.onAccentContainer : colors.text} />
+                <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>{label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
         <Text style={styles.section}>Reset a book</Text>
         {books.map((book) => (
           <Row
@@ -132,7 +157,15 @@ export default function SettingsScreen() {
   );
 }
 
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap }[] = [
+  { value: 'system', label: 'Automatic', icon: 'theme-light-dark' },
+  { value: 'light', label: 'Light', icon: 'white-balance-sunny' },
+  { value: 'dark', label: 'Dark', icon: 'weather-night' },
+];
+
 function Row({ label, action, danger, onPress }: { label: string; action?: string; danger?: boolean; onPress: () => void }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
       <Text style={[styles.rowLabel, danger && { color: colors.danger }]}>{label}</Text>
@@ -141,21 +174,36 @@ function Row({ label, action, danger, onPress }: { label: string; action?: strin
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { paddingHorizontal: 16 },
-  section: { color: colors.accent, fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8, marginLeft: 4 },
-  note: { color: colors.textMuted, fontSize: 14, marginBottom: 10, marginHorizontal: 4 },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    marginBottom: 8,
-  },
-  rowLabel: { color: colors.text, fontSize: 18, flexShrink: 1 },
-  rowAction: { color: colors.danger, fontSize: 16, fontWeight: '600' },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { paddingHorizontal: 16 },
+    section: { color: colors.accent, fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8, marginLeft: 4 },
+    note: { color: colors.textMuted, fontSize: 14, marginBottom: 10, marginHorizontal: 4 },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      paddingHorizontal: 18,
+      paddingVertical: 16,
+      marginBottom: 8,
+    },
+    segments: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+    segment: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 12,
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.outline,
+    },
+    segmentActive: { backgroundColor: colors.accentContainer, borderColor: colors.accentContainer },
+    segmentLabel: { color: colors.text, fontSize: 16 },
+    segmentLabelActive: { color: colors.onAccentContainer, fontWeight: '600' },
+    rowLabel: { color: colors.text, fontSize: 18, flexShrink: 1 },
+    rowAction: { color: colors.danger, fontSize: 16, fontWeight: '600' },
+  });

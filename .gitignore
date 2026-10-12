@@ -43,3 +43,6 @@ yarn-error.*
 # generated from ColoringPages/ by scripts/build-content.mjs
 /generated/
 src/content/books.generated.ts
+
+# built from BookPacks/ by scripts/build-packs.mjs (the Website workflow runs it)
+/docs/packs/

@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 /**
- * Downloads the coloring pages from the Church of Jesus Christ's media library into ColoringPages/,
- * one book per grouping on https://www.churchofjesuschrist.org/media/collection/coloring-pages-images
+ * Downloads the coloring pages from the Church of Jesus Christ's media library into BookPacks/church/
+ * (the downloadable "church" pack), one book per grouping on https://www.churchofjesuschrist.org/media/collection/coloring-pages-images
  *
  *   node scripts/fetch-church-coloring-pages.mjs
  *
- * Each grouping becomes ColoringPages/church-<nn>-<name>/ with the largest JPEG the site offers for
+ * Each grouping becomes BookPacks/church/church-<nn>-<name>/ with the largest JPEG the site offers for
  * every page and a _book.json in the site's order. File names come from the site's page URLs, so
  * they stay stable (they key saved coloring). Files already downloaded are skipped; _book.json is
- * rewritten every run. Then run `npm run content` as usual.
+ * rewritten every run. Then run `npm run packs` to rebuild the pack.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SOURCE_DIR = path.join(ROOT, 'ColoringPages');
+const SOURCE_DIR = path.join(ROOT, 'BookPacks', 'church');
 const SITE = 'https://www.churchofjesuschrist.org';
 const LANG = 'eng';
 

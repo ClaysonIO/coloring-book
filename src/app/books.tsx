@@ -11,11 +11,14 @@ import { usePinGate } from '../components/PinPrompt';
 import { AddTile, Tile } from '../components/Tile';
 import { useLibrary, type PickedImage } from '../state/LibraryContext';
 import { useUsers } from '../state/UsersContext';
-import { colors } from '../theme';
+import { useTheme, useThemedStyles } from '../state/ThemeContext';
+import type { Colors } from '../theme';
 
 export default function BooksScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { currentUser } = useUsers();
-  const { books, createBook, removeBook, renameBook } = useLibrary();
+  const { books, createBook, removeBook, renameBook, newPackCount } = useLibrary();
   const [editing, setEditing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [cover, setCover] = useState<PickedImage | null>(null);
@@ -64,6 +67,7 @@ export default function BooksScreen() {
               onPress={() => setEditing(!editing)}
               color={editing ? colors.accent : colors.text}
             />
+            <IconButton icon="book-plus-multiple" label="More books" onPress={() => router.push('/get-books')} />
             <IconButton icon="cog" label="Settings" onPress={() => router.push('/settings')} />
           </>
         }
@@ -82,7 +86,19 @@ export default function BooksScreen() {
             onRemove={editing && !book.sketchbook ? () => remove(book.id, book.title) : undefined}
           />
         )}
-        trailing={editing ? <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} /> : undefined}
+        trailing={
+          editing ? (
+            <AddTile label="New book" aspectRatio={3 / 4} onPress={() => setCreating(true)} />
+          ) : (
+            <AddTile
+              label="More books"
+              icon="book-plus-multiple"
+              badge={newPackCount}
+              aspectRatio={3 / 4}
+              onPress={() => router.push('/get-books')}
+            />
+          )
+        }
       />
 
       <NamePrompt
@@ -123,7 +139,8 @@ export default function BooksScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  coverButton: { marginTop: 16, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.outline, alignItems: 'center' },
-  coverText: { color: colors.accent, fontSize: 16 },
-});
+const createStyles = (colors: Colors) =>
+  StyleSheet.create({
+    coverButton: { marginTop: 16, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.outline, alignItems: 'center' },
+    coverText: { color: colors.accent, fontSize: 16 },
+  });

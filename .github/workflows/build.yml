@@ -1,14 +1,38 @@
 name: Build
 
-# Builds run only for pushes to main (i.e. merged PRs) and for pull requests.
+# Builds run only for pushes to main (i.e. merged PRs) and for pull requests, and only when something
+# that goes into the app changed. Website changes (docs/, BookPacks/ and their scripts), README and
+# store-listing edits don't build or release anything; the Website workflow handles the site.
 # Pushes to main also publish the Android APK as a GitHub release.
+# Keep both lists in sync, and add any new folder the app is built from.
 on:
   push:
     branches: [main]
-    # Website-only changes don't need a new build or release.
-    paths-ignore: ['docs/**', '.github/workflows/pages.yml']
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - 'ColoringPages/**'
+      - 'scripts/build-content.mjs'
+      - 'scripts/content-lib.mjs'
+      - 'app.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.npmrc'
+      - '.github/workflows/build.yml'
   pull_request:
-    paths-ignore: ['docs/**', '.github/workflows/pages.yml']
+    paths:
+      - 'src/**'
+      - 'assets/**'
+      - 'ColoringPages/**'
+      - 'scripts/build-content.mjs'
+      - 'scripts/content-lib.mjs'
+      - 'app.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.npmrc'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 concurrency:

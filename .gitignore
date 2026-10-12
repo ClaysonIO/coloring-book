@@ -46,3 +46,7 @@ src/content/books.generated.ts
 
 # built from BookPacks/ by scripts/build-packs.mjs (the Website workflow runs it)
 /docs/packs/
+
+# screenshot harness (screenshots/README.md)
+/screenshots/.build/
+/screenshots/output/

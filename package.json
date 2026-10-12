@@ -30,6 +30,9 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "mupdf": "^1.28.1",
+    "playwright": "^1.64.0",
+    "react-dom": "19.2.3",
+    "react-native-web": "~0.21.0",
     "sharp": "^0.35.5",
     "typescript": "~6.0.3"
   },
@@ -41,7 +44,8 @@
     "android": "npm run content && expo start --android",
     "ios": "npm run content && expo start --ios",
     "web": "npm run content && expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "screenshots": "node screenshots/capture.mjs"
   },
   "private": true
 }

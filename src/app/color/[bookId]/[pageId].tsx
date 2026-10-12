@@ -34,6 +34,7 @@ export default function ColorScreen() {
     <Colorer
       key={`${currentUser.id}/${bookId}/${pageId}`}
       userId={currentUser.id}
+      pinchZoom={!!currentUser.pinchZoom}
       bookId={bookId}
       pageId={pageId}
       page={page}
@@ -59,7 +60,19 @@ function blankSizeFor(area: { width: number; height: number }) {
   return { width: Math.round(area.width * scale), height: Math.round(area.height * scale) };
 }
 
-function Colorer({ userId, bookId, pageId, page }: { userId: string; bookId: string; pageId: string; page: Page }) {
+function Colorer({
+  userId,
+  pinchZoom,
+  bookId,
+  pageId,
+  page,
+}: {
+  userId: string;
+  pinchZoom: boolean;
+  bookId: string;
+  pageId: string;
+  page: Page;
+}) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -217,6 +230,7 @@ function Colorer({ userId, bookId, pageId, page }: { userId: string; bookId: str
         size={size}
         onFill={onFill}
         onStroke={onStroke}
+        pinchZoom={pinchZoom}
       />
     </View>
   );

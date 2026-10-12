@@ -10,6 +10,7 @@ type UsersContextValue = {
   addUser: (name: string, color: string) => User;
   deleteUser: (id: string) => void;
   setPin: (id: string, pin: string | null) => void;
+  setPinchZoom: (id: string, enabled: boolean) => void;
   /** Bumped whenever saved coloring changes, so screens showing thumbnails re-read them. */
   revision: number;
   bumpRevision: () => void;
@@ -59,6 +60,18 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setPinchZoom = useCallback((id: string, enabled: boolean) => {
+    setUsers((prev) => {
+      const next = prev.map((u) => {
+        if (u.id !== id) return u;
+        const { pinchZoom: _old, ...rest } = u;
+        return enabled ? { ...rest, pinchZoom: true } : rest;
+      });
+      storage.saveUsers(next);
+      return next;
+    });
+  }, []);
+
   const bumpRevision = useCallback(() => setRevision((r) => r + 1), []);
 
   const value = useMemo<UsersContextValue>(
@@ -69,10 +82,11 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       addUser,
       deleteUser,
       setPin,
+      setPinchZoom,
       revision,
       bumpRevision,
     }),
-    [users, currentId, addUser, deleteUser, setPin, revision, bumpRevision],
+    [users, currentId, addUser, deleteUser, setPin, setPinchZoom, revision, bumpRevision],
   );
 
   return <UsersContext.Provider value={value}>{children}</UsersContext.Provider>;

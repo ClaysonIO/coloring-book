@@ -17,6 +17,8 @@ export type User = {
   createdAt: number;
   /** Optional 4-digit PIN guarding account deletion and account/book resets. A kid lock, not security. */
   pin?: string;
+  /** Lets two fingers zoom and move the page while coloring. Off by default so every touch colors. */
+  pinchZoom?: boolean;
 };
 
 /** Width/height are the blank page's pixel size, fixed the first time the page is opened. */

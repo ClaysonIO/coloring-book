@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirm } from '../components/confirm';
@@ -19,7 +19,7 @@ type PinSetup = { step: 'choose' } | { step: 'repeat'; first: string } | null;
 export default function SettingsScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors, preference, setPreference } = useTheme();
-  const { currentUser, deleteUser, selectUser, setPin, bumpRevision } = useUsers();
+  const { currentUser, deleteUser, selectUser, setPin, setPinchZoom, bumpRevision } = useUsers();
   const { books, hasRemovedBuiltIns, restoreBuiltIns } = useLibrary();
   const insets = useSafeAreaInsets();
   const { gate, pinPrompt } = usePinGate();
@@ -53,6 +53,28 @@ export default function SettingsScreen() {
             );
           })}
         </View>
+
+        <Text style={styles.section}>Coloring</Text>
+        <Text style={styles.note}>
+          Just for {name}. Pinch with two fingers to zoom in on a page and drag with two fingers to move around. One
+          finger always colors.
+        </Text>
+        <Pressable
+          onPress={() => setPinchZoom(id, !currentUser.pinchZoom)}
+          style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: !!currentUser.pinchZoom }}
+          accessibilityLabel="Pinch to zoom"
+        >
+          <Text style={styles.rowLabel}>Pinch to zoom</Text>
+          <Switch
+            value={!!currentUser.pinchZoom}
+            onValueChange={(on) => setPinchZoom(id, on)}
+            trackColor={{ true: colors.accent, false: colors.outline }}
+            thumbColor="white"
+            ios_backgroundColor={colors.outline}
+          />
+        </Pressable>
 
         <Text style={styles.section}>Reset a book</Text>
         {books.map((book) => (

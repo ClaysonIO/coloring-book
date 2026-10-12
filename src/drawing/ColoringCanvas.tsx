@@ -1,6 +1,7 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Canvas, Group, type SkImage } from '@shopify/react-native-skia';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { brushWidth } from './brushes';
@@ -204,6 +205,22 @@ export function ColoringCanvas({
       ) : (
         <ActivityIndicator color="#FFB59A" />
       )}
+      {area && scale > 0 && view.zoom > 1 ? (
+        // Outside the gesture area so tapping it never colors; pinned to the page's top-right corner.
+        <Pressable
+          onPress={() => setView(IDENTITY)}
+          style={({ pressed }) => [
+            styles.fit,
+            { top: (area.height - frameH) / 2 + 8, right: (area.width - frameW) / 2 + 8 },
+            pressed && { opacity: 0.7 },
+          ]}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Show the whole page"
+        >
+          <MaterialCommunityIcons name="fit-to-screen-outline" size={26} color="#333" />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -215,4 +232,15 @@ function round1(n: number) {
 const styles = StyleSheet.create({
   area: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   page: { borderRadius: 14, overflow: 'hidden', backgroundColor: 'white' },
+  fit: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.15)',
+  },
 });

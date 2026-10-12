@@ -41,6 +41,10 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Build book packs
         run: npm run packs
+      # GitHub Pages lets browsers cache files for 4 hours. A new ?v= on every deploy makes them load
+      # the current style.css and theme.js instead of mixing new pages with old styles.
+      - name: Version CSS and JS links
+        run: sed -i -E "s/(href|src)=\"(style\.css|theme\.js)\"/\1=\"\2?v=${GITHUB_SHA::8}\"/g" docs/*.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

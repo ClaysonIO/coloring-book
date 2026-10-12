@@ -3,7 +3,9 @@
  * published with the site. The app re-reads it to show new packs and to update installed ones,
  * so publishing the website is all it takes to ship new books.
  */
-export const SITE_URL = 'https://claysonio.github.io/coloring-book/';
+// The site's final address. GitHub Pages serves it on the custom domain; the github.io address
+// redirects there over plain HTTP, which Android release builds refuse, so never go through it.
+export const SITE_URL = 'https://www.clayson.io/coloring-book/';
 export const PACKS_URL = `${SITE_URL}packs/`;
 export const CATALOG_URL = `${PACKS_URL}index.json`;
 

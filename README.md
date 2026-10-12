@@ -4,8 +4,8 @@ A simple coloring app for Android, iPhone and iPad, built with Expo (React Nativ
 [React Native Skia](https://shopify.github.io/react-native-skia/). It ships with one book of animals; more books
 are free downloads from the website, and everything works offline once downloaded.
 
-**Website:** https://claysonio.github.io/coloring-book/ ([privacy policy](https://claysonio.github.io/coloring-book/privacy.html),
-[support](https://claysonio.github.io/coloring-book/support.html)). Its source is in `docs/`, and
+**Website:** https://www.clayson.io/coloring-book/ ([privacy policy](https://www.clayson.io/coloring-book/privacy.html),
+[support](https://www.clayson.io/coloring-book/support.html)). Its source is in `docs/`, and
 `.github/workflows/pages.yml` publishes it. Store listing text and submission answers are in
 [STORE_LISTING.md](STORE_LISTING.md).
 
@@ -150,8 +150,8 @@ BookPacks/
 
 `npm run packs` (`scripts/build-packs.mjs`) builds them into `docs/packs/` (git-ignored):
 
-- `index.json`: the catalog. The app reads it from `https://claysonio.github.io/coloring-book/packs/index.json`
-  (`src/content/catalog.ts`), and so does the website's [books page](https://claysonio.github.io/coloring-book/books.html).
+- `index.json`: the catalog. The app reads it from `https://www.clayson.io/coloring-book/packs/index.json`
+  (`src/content/catalog.ts`), and so does the website's [books page](https://www.clayson.io/coloring-book/books.html).
 - `<pack>-<version>.zip`: the pack. JPEGs up to 2048 px are copied as they are; everything else is converted
   to PNG, so installing on a device is mostly copying files. Each book's `_book.json` inside lists page `id`s.
 - `<pack>/<book>/*.jpg`: cover and page thumbnails for the website and the app's **More Books** screen.

@@ -7,9 +7,9 @@ to GitHub Pages by `.github/workflows/pages.yml`.
 
 | Field | URL |
 |---|---|
-| Marketing / website | https://claysonio.github.io/coloring-book/ |
-| Privacy policy | https://claysonio.github.io/coloring-book/privacy.html |
-| Support | https://claysonio.github.io/coloring-book/support.html |
+| Marketing / website | https://www.clayson.io/coloring-book/ |
+| Privacy policy | https://www.clayson.io/coloring-book/privacy.html |
+| Support | https://www.clayson.io/coloring-book/support.html |
 
 One-time setup: in the repo on GitHub, open **Settings → Pages** and set **Source** to **GitHub Actions**. The
 **Website** workflow then deploys `docs/` on every push to `main` that changes it (or run it from the Actions tab).

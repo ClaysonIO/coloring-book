@@ -67,10 +67,11 @@ export function loadCachedCatalog(): Catalog | null {
 }
 
 export async function fetchCatalog(): Promise<Catalog> {
-  const res = await fetch(CATALOG_URL, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`The website answered ${res.status}`);
+  // GitHub Pages lets caches keep files for hours; a unique URL always gets the current list.
+  const res = await fetch(`${CATALOG_URL}?t=${Date.now()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`The website answered with error ${res.status}.`);
   const catalog = parseCatalog(await res.json());
-  if (!catalog) throw new Error('The book list on the website is not readable');
+  if (!catalog) throw new Error('The book list on the website is not readable.');
   const file = catalogFile();
   const dir = new Directory(Paths.document, 'coloring', 'library');
   if (!dir.exists) dir.create({ intermediates: true, idempotent: true });

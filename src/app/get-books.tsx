@@ -28,7 +28,7 @@ export default function GetBooksScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { currentUser } = useUsers();
-  const { catalog, catalogState, refreshCatalog, markPacksSeen, installPack, importZip, installedPacks, removePack, updatingPacks } =
+  const { catalog, catalogState, catalogError, refreshCatalog, markPacksSeen, installPack, importZip, installedPacks, removePack, updatingPacks } =
     useLibrary();
   const insets = useSafeAreaInsets();
   const [busy, setBusy] = useState<string | null>(null);
@@ -112,7 +112,11 @@ export default function GetBooksScreen() {
           <View style={styles.notice}>
             <MaterialCommunityIcons name="wifi-off" size={22} color={colors.textMuted} />
             <Text style={styles.noticeText}>
-              {packs.length ? "Can't reach the website, so this list may be out of date." : 'Connect to the internet to see the books you can download.'}
+              {catalogError
+                ? `Couldn't load the book list. ${catalogError}`
+                : packs.length
+                  ? "Can't reach the website, so this list may be out of date."
+                  : 'Connect to the internet to see the books you can download.'}
             </Text>
             <Pressable onPress={refreshCatalog} hitSlop={8}>
               <Text style={styles.link}>Try again</Text>

@@ -34,6 +34,8 @@ type LibraryContextValue = {
   /** The website's packs (the last list seen if it can't be reached right now). */
   catalog: Catalog | null;
   catalogState: 'loading' | 'ready' | 'offline';
+  /** Why the last check failed, when it wasn't simply a missing connection. */
+  catalogError: string | null;
   refreshCatalog: () => Promise<void>;
   installedPacks: InstalledPack[];
   /** Website packs that are neither installed nor seen on the "More books" screen yet. */
@@ -80,6 +82,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   const [sketchVersion, setSketchVersion] = useState(0);
   const [catalog, setCatalog] = useState<Catalog | null>(() => packs.loadCachedCatalog());
   const [catalogState, setCatalogState] = useState<'loading' | 'ready' | 'offline'>('loading');
+  const [catalogError, setCatalogError] = useState<string | null>(null);
   const [updatingPacks, setUpdatingPacks] = useState<string[]>([]);
   // Async installs read the latest library from here rather than a stale closure.
   const dataRef = useRef(data);
@@ -399,10 +402,13 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     let fresh: Catalog;
     try {
       fresh = await packs.fetchCatalog();
-    } catch {
+    } catch (e) {
+      // fetch() rejects with a TypeError when there's no connection; anything else is the website's answer.
+      setCatalogError(e instanceof Error && !(e instanceof TypeError) ? e.message : null);
       setCatalogState('offline');
       return;
     }
+    setCatalogError(null);
     setCatalog(fresh);
     setCatalogState('ready');
     // Installed website packs follow the website: a new version is downloaded in the background.
@@ -452,6 +458,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       restoreBuiltIns,
       catalog,
       catalogState,
+      catalogError,
       refreshCatalog,
       installedPacks: data.packs,
       newPackCount,
@@ -477,6 +484,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       restoreBuiltIns,
       catalog,
       catalogState,
+      catalogError,
       refreshCatalog,
       newPackCount,
       markPacksSeen,

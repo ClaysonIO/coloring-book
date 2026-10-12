@@ -170,6 +170,19 @@ h3 { font-size: 21px; margin: 0 0 8px; }
 .page-strip .gallery { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
 .page-strip .gallery img { width: 100%; aspect-ratio: 1; object-fit: contain; }
 
+/* Slopware warning (index.html) */
+.slopware { background: var(--accent-soft); border-bottom: 1px solid var(--border); font-size: 16px; }
+.slopware p { margin: 0; padding: 10px 0; text-align: center; }
+
+/* Prompts page */
+.conversation { margin-top: 40px; }
+.conversation h2 { margin: 0 0 4px; }
+.conversation-meta { color: var(--muted); margin: 0 0 12px; font-size: 16px; }
+.prompt-list { padding-left: 24px; }
+.prompt-list li { margin: 0 0 12px; }
+.prompt-list li::marker { color: var(--muted); }
+.prompt-list p { margin: 0; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 16px; }
+
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 32px 0 48px; color: var(--muted); font-size: 15px; }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; }

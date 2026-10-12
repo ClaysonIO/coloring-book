@@ -32,7 +32,7 @@ export function Tile({ title, image, aspectRatio, paper, onPress, onLongPress, o
         {image !== undefined && (
           // Page art is up to 2048px; expo-image decodes it at tile size instead of full size.
           <Image
-            source={typeof image === 'number' ? image : { uri: image }}
+            source={typeof image === 'string' ? { uri: image } : image}
             style={styles.image}
             contentFit={paper ? 'contain' : 'cover'}
             cachePolicy="memory"
